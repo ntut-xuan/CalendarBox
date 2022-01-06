@@ -1,0 +1,96 @@
+<html>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="./static/index.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script  src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+	<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+	<style>
+		* {
+			overflow-y: hidden;
+		}
+		.middle_text {
+			position: absolute;
+			top: 50%; 
+			left: 50%;
+			font-family: "Microsoft YaHei UI";
+			font-size: 30pt;
+			color: white;
+			margin: 1px;
+			text-align: center;
+			transform: translate(-50%, -50%);
+		}
+		#title {
+			overflow: hidden;
+			white-space: nowrap;
+			margin: 0 auto;
+			letter-spacing: 0;
+			animation: 
+				typing 1.5s steps(20, end)
+		}
+		#login {
+			display: block;
+			top: 5px;
+			right: 5px;
+			width: 360px;
+			background-color: lightblue;
+			font-family: "Noto Sans TC";
+			font-size: x-large;
+			font-weight: bolder;
+			color: rgb(30, 30, 30);
+		}
+		#register {
+			display: block;
+			margin-top: 15px;
+			top: 5px;
+			right: 5px;
+			width: 360px;
+			background-color: orange;
+			font-family: "Noto Sans TC";
+			font-size: x-large;
+			font-weight: bolder;
+			color: rgb(30, 30, 30);
+		}
+		#login:hover {
+			background-color: lavender;
+		}
+		#register:hover {
+			background-color: rgb(250, 194, 91);
+		}
+		@keyframes fadein {
+			0% {
+				left: 0%;
+				opacity: 0;
+			}
+			50% {
+				left: 50%;
+				opacity: 1;
+			}
+		}
+		@keyframes typing {
+			from { width: 0 }
+			to { width: 100% }
+		}
+		button:active {
+			background-color: #3e8e41;
+			box-shadow: 0 5px #666;
+			transform: translateY(4px);
+		}
+	</style>
+	<body>
+		<div style="margin: 0; padding-top: 0px; position: absolute;">
+			<a id="index" href="./index.html"> CalendarBox </a>
+			<img src="./static/index.png" width="100%" height="auto"></img>
+			<div class="middle_text">
+				<p id="title">CalendarBox</p>
+				<p style="font-size: 16pt;">一款輕巧好用的個人行事曆</p>
+				<p style="font-size: 16pt;">來自國立臺北科技大學</p>
+				<button class="btn" id="login" onclick="location.href='./login.html'"> 登入 </button>
+				<button class="btn" id="register" onclick="location.href='./register.html'"> 註冊 </button>
+			</div>
+		</div>
+	</body>
+</html>

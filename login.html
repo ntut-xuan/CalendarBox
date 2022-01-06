@@ -1,0 +1,75 @@
+<html>
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="./static/index.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+	<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <style>
+        * {
+			overflow-y: hidden;
+            overflow-x: hidden;
+		}
+        #login {
+            background-color: white; 
+            display: inline-block; 
+            width: 400px; 
+            height: 400px;
+            position: absolute;
+			top: 45%; 
+			left: 50%;
+			font-family: "Microsoft YaHei UI";
+			font-size: 30pt;
+			margin: 1px;
+			text-align: center;
+			transform: translate(-50%, -50%);
+            border-radius: 10px;
+            border-style: solid;
+            border-width: 1px;
+            border-color: gray;
+            animation: fadein 3s;
+        }
+        
+        @keyframes fadein {
+			0% {
+				opacity: 0;
+			}
+			50% {
+				opacity: 1;
+			}
+		}
+        button:active {
+			background-color: #3e8e41;
+			box-shadow: 0 5px #666;
+			transform: translateY(4px);
+		}
+    </style>
+    <body>
+        <div style="margin: 0; padding-top: 0px; position: absolute;">
+            <a id="index" href="./index.html"> CalendarBox </a>
+			<img src="./static/login.png" width="100%" height="auto"></img>
+            <div id="login" style="padding: 20px;">
+                <p style="margin-top: 34px;"> 登入 </p>
+                <div class="input-group" style="margin-top: 40px;">
+                    <div id="email-div" class="input-group-prepend">
+                        <span class="input-group-text" id="email">信箱</span>
+                      </div>
+                      <input type="email" class="form-control">
+                </div>
+                <div class="input-group" style="margin-top: 20px;">
+                    <div id="email-div" class="input-group-prepend">
+                        <span class="input-group-text" id="email">密碼</span>
+                      </div>
+                      <input type="password" class="form-control">
+                </div>
+                <button class="btn btn-primary btn-lg btn-block" style="margin-top: 20px;"> 登入 </button>
+                <div style="text-align: center; margin-top: 50px">
+                    <a href="./register.html" style="font-size: 10pt; text-align: center;"> 如果你沒有帳號，註冊一個 </a>
+                </div>
+            </div>
+		</div>
+    </body>
+</html>

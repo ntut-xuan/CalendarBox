@@ -1,0 +1,15 @@
+@font-face {
+    font-family: "Open 24 Display St";
+    src: url('./static/Open 24 Display St.ttf');
+}
+
+#index{
+    position: absolute;
+    top: 1%;
+    left: 1%;
+    font-family: "Open 24 Display St"; 
+    font-size: 32pt;
+    text-decoration: none; 
+    color: white;
+    background-color: transparent;
+}
