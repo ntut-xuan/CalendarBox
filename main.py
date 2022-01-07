@@ -5,8 +5,6 @@ import requests
 import json
 from io import BytesIO
 from flask import *
-from firebase_admin import credentials
-from firebase_admin import firestore
 
 app = Flask(__name__)
 
@@ -37,7 +35,5 @@ def getPlatform():
         return index_html.read()
 
 if __name__ == "__main__":
-    cred = credentials.ApplicationDefault()
-    firebase_admin.initialize_app(cred, {'projectId': project_id,})
     app.debug = True
     app.run(host="0.0.0.0", port=80)
