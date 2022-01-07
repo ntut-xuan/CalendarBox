@@ -1,0 +1,208 @@
+<html>
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="./static/index.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script  src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+	<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script src="https://kit.fontawesome.com/7b0276e0ce.js" crossorigin="anonymous"></script>
+    <style>
+        #sidebar {
+            position: absolute;
+            background-color: aquamarine;
+            margin: 0;
+            padding: 20px;
+            padding-top: 90px;
+            display: inline-block;
+            top: 0%;
+            left: 0%;
+            width: 15%;
+            height: 100%;
+            animation: fadin 1.5s;
+        }
+        #topbar {
+            position: absolute;
+            left: 15%;
+            height: 5%;
+            width: 100%;
+            background-color: rgba(225, 225, 225);
+        }
+        .sidebar-li {
+            margin: 5px;
+            margin-top: 40px;
+            padding-top: 5px;
+            padding-left: 15px;
+            padding-bottom: 5px;
+            width: 100%;
+            border-radius: 10px;
+            font-family: "Ubuntu Mono";
+            font-weight: bold;
+            font-size: 16pt;
+            text-align: left;
+            list-style: none;
+            cursor: pointer;
+        }
+        .sidebar-li:hover {
+            background-color: black; 
+            color: aquamarine;
+        }
+        .active {
+            background-color: black; 
+            color: aquamarine;
+        }
+        .inactive {
+            background-color: aquamarine; 
+            color: black;
+        }
+        th {
+            border: solid;
+            border-width: 15px 15px 0px 15px;
+            border-color: mediumorchid;
+            text-align: left;
+        }
+        td {
+            width: 100px;
+            height: 100px;
+            border: solid;
+            border-width: 15px;
+            border-color: mediumorchid;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        #calendar_area {
+            position: absolute; 
+            left: 20%; 
+            top: 10%; 
+            width: 700px; 
+            background-color: mediumorchid; 
+            color: white; 
+            border-radius: 10px;
+            box-shadow:2px 2px 2px 1px #cccccc;
+            animation: down-slidein 1.5s;
+        }
+        #task_area {
+            position: absolute; 
+            right: 10%; 
+            top: 10%; 
+            width: 30%; 
+            height: 500px; 
+            background-color: wheat; 
+            border-radius: 10px;
+            box-shadow:2px 2px 2px 1px #cccccc;
+            animation: left-slidein 1.5s;
+        }
+        #user {
+            position: absolute; 
+            bottom: 5%; 
+            width: 15%; 
+            color: white; 
+            background-color: gray; 
+            height: 45px; 
+            font-size: 18pt; 
+            padding: 5px; 
+            text-align: left; 
+            padding-left: 15px;
+        }
+        td:hover {
+            background-color: rgba(255, 255, 255, 1);
+        }
+        #user:hover {
+            background-color: rgb(150, 150, 150, 0.7);
+        }
+        @keyframes fadin {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes down-slidein {
+            from {
+                opacity: 0;
+                top: 0;
+            }
+            to {
+                opacity: 1;
+                top: 10%;
+            }
+        }
+        @keyframes left-slidein {
+            from {
+                opacity: 0;
+                right: 0;
+            }
+            to {
+                opacity: 1;
+                right: 10%;
+            }
+        }
+    </style>
+    <body>
+        <a id="index" href="./" style="z-index: 1;"> CalendarBox </a>
+        <div id="sidebar">
+            <li class="sidebar-li active">
+                <i class="fas fa-address-card"></i>
+                <a> Index </a>
+            </li>
+            <li class="sidebar-li inactive">
+                <i class="fas fa-pen"></i>
+                <a> Add New Task </a>
+            </li>
+            <li class="sidebar-li inactive">
+                <i class="fas fa-pen"></i>
+                <a> Add New Note </a>
+            </li>
+            <li class="sidebar-li inactive">
+                <i class="fas fa-cogs   "></i>
+                <a> Edit Setting </a>
+            </li>
+        </div>
+        <div id="user">
+            <i class="fas fa-running"></i>
+            <a> Uriah Xuan </a>
+        </div>
+        <div id="calendar_area">
+            <div id="calendar_title" style="height: 20%; width: 100%; padding: 50px; padding-bottom: 0px;">
+                <h2> 2022 一月 </h2>
+                <table style="width: 100%; text-align: center; margin-top: 30px; color: white;">
+                    <thead>
+                        <th> 星期日 </th>
+                        <th> 星期一 </th>
+                        <th> 星期二 </th>
+                        <th> 星期三 </th>
+                        <th> 星期四 </th>
+                        <th> 星期五 </th>
+                        <th> 星期六 </th>
+                    </thead>
+                </table>
+            </div>
+            <div id="calendar_main" style="width: 100%; height: 100%; padding: 50px; padding-top: 0px; margin: 0;">
+                <table id="calendar">
+
+                </table>
+            </div>
+        </div>
+        <div id="task_area">
+            <div style="padding: 50px;">
+                <h2> 待做事項 </h2>
+                <ul class="list-group">
+                    <li class="list-group-item"> 2022-01-07 寫網頁 </li>
+                </ul>
+            </div>
+        </div>
+    </body>
+    <script>
+        var table = document.getElementById("calendar");
+        for(var i = 0; i < 6; i++){
+            var tr = document.createElement("tr");
+            for(var j = 0; j < 7; j++){
+                var td = document.createElement("td");
+                tr.appendChild(td);
+            }
+            table.appendChild(tr);
+        }
+    </script>
+</html>

@@ -8,6 +8,7 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
 	<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
 			overflow-y: hidden;
@@ -55,21 +56,70 @@
                 <p style="margin-top: 34px;"> 登入 </p>
                 <div class="input-group" style="margin-top: 40px;">
                     <div id="email-div" class="input-group-prepend">
-                        <span class="input-group-text" id="email">信箱</span>
+                        <span class="input-group-text">信箱</span>
                       </div>
-                      <input type="email" class="form-control">
+                      <input type="email" id="email" class="form-control">
                 </div>
                 <div class="input-group" style="margin-top: 20px;">
                     <div id="email-div" class="input-group-prepend">
-                        <span class="input-group-text" id="email">密碼</span>
+                        <span class="input-group-text">密碼</span>
                       </div>
-                      <input type="password" class="form-control">
+                      <input type="password" id="password" class="form-control">
                 </div>
-                <button class="btn btn-primary btn-lg btn-block" style="margin-top: 20px;"> 登入 </button>
+                <button class="btn btn-primary btn-lg btn-block" style="margin-top: 20px;" onclick="login()"> 登入 </button>
                 <div style="text-align: center; margin-top: 50px">
                     <a href="./register" style="font-size: 10pt; text-align: center;"> 如果你沒有帳號，註冊一個 </a>
                 </div>
             </div>
 		</div>
     </body>
+    <!--  Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyClv8aHmcjwfjkGuqDrogi46edrezuktfA",
+          authDomain: "ntut-web-c0525.firebaseapp.com",
+          projectId: "ntut-web-c0525",
+          storageBucket: "ntut-web-c0525.appspot.com",
+          messagingSenderId: "690596703723",
+          appId: "1:690596703723:web:f2a2a54b86d458cd1e3dae"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+
+        function login(){
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+            Swal.fire({
+                title: "登入中",
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                    app.auth().signInWithEmailAndPassword(email, password).then((userCredential) => {
+                        var user = userCredential.user;
+                        console.log("success");
+                        Swal.fire({
+                            icon: 'success',
+                            title: "登入成功",
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then((result) => {
+                            window.location.href = "./";
+                        });
+                    })
+                    .catch((error) => {
+                        var errorCode = error.code;
+                        var errorMessage = error.message;
+                    });
+                }
+            });
+        }
+    </script>
 </html>
