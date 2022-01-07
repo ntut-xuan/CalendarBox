@@ -117,6 +117,12 @@
                     .catch((error) => {
                         var errorCode = error.code;
                         var errorMessage = error.message;
+                        Swal.fire({
+                            icon: 'error',
+                            title: "登入失敗，帳號或密碼錯誤",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
                     });
                 }
             });
