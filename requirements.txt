@@ -2,3 +2,4 @@ Pillow
 Flask
 requests
 gunicorn
+firebase_admin

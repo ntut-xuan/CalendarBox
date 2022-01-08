@@ -45,6 +45,11 @@
             list-style: none;
             cursor: pointer;
         }
+        a {
+            color: black;
+            text-decoration: none;
+            pointer-events: none;
+        }
         .sidebar-li:hover {
             background-color: black; 
             color: aquamarine;
@@ -140,57 +145,76 @@
             }
         }
     </style>
+    <script>
+        $.ajax({
+            url: "./platform",
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json;charset=utf-8",
+            success: function(data, status, xhr){
+                console.log(data);
+                var a = document.getElementById("user_email");
+                a.innerText = data["name"];
+            }
+        });
+    </script>
     <body>
-        <a id="index" href="./" style="z-index: 1;"> CalendarBox </a>
-        <div id="sidebar">
-            <li class="sidebar-li active">
-                <i class="fas fa-address-card"></i>
-                <a> Index </a>
-            </li>
-            <li class="sidebar-li inactive">
-                <i class="fas fa-pen"></i>
-                <a> Add New Task </a>
-            </li>
-            <li class="sidebar-li inactive">
-                <i class="fas fa-pen"></i>
-                <a> Add New Note </a>
-            </li>
-            <li class="sidebar-li inactive">
-                <i class="fas fa-cogs   "></i>
-                <a> Edit Setting </a>
-            </li>
-        </div>
-        <div id="user">
-            <i class="fas fa-running"></i>
-            <a> Uriah Xuan </a>
-        </div>
-        <div id="calendar_area">
-            <div id="calendar_title" style="height: 20%; width: 100%; padding: 50px; padding-bottom: 0px;">
-                <h2> 2022 一月 </h2>
-                <table style="width: 100%; text-align: center; margin-top: 30px; color: white;">
-                    <thead>
-                        <th> 星期日 </th>
-                        <th> 星期一 </th>
-                        <th> 星期二 </th>
-                        <th> 星期三 </th>
-                        <th> 星期四 </th>
-                        <th> 星期五 </th>
-                        <th> 星期六 </th>
-                    </thead>
-                </table>
+        <div>
+            <a id="index" href="./" style="z-index: 1;"> CalendarBox </a>
+            <div id="sidebar">
+                <li class="sidebar-li active">
+                    <i class="fas fa-address-card" style="width: 24px; height: 24px;"></i>
+                    <a> Index </a>
+                </li>
+                <li class="sidebar-li inactive">
+                    <i class="fas fa-pen" style="width: 24px; height: 24px;"></i>
+                    <a> Add New Task </a>
+                </li>
+                <li class="sidebar-li inactive">
+                    <i class="fas fa-pen" style="width: 24px; height: 24px;"></i>
+                    <a> Add New Note </a>
+                </li>
+                <li class="sidebar-li inactive">
+                    <i class="fas fa-cogs" style="width: 24px; height: 24px;"></i>
+                    <a> Edit Setting </a>
+                </li>
+                <li class="sidebar-li inactive">
+                    <i class="fas fa-sign-out-alt" style="width: 24px; height: 24px;"></i>
+                    <a href="./logout"> Log out </a>
+                </li>
             </div>
-            <div id="calendar_main" style="width: 100%; height: 100%; padding: 50px; padding-top: 0px; margin: 0;">
-                <table id="calendar">
+            <div id="user">
+                <i class="fas fa-running"></i>
+                <a id="user_email"> </a>
+            </div>
+            <div id="calendar_area">
+                <div id="calendar_title" style="height: 20%; width: 100%; padding: 50px; padding-bottom: 0px;">
+                    <h2> 2022 一月 </h2>
+                    <table style="width: 100%; text-align: center; margin-top: 30px; color: white;">
+                        <thead>
+                            <th> 星期日 </th>
+                            <th> 星期一 </th>
+                            <th> 星期二 </th>
+                            <th> 星期三 </th>
+                            <th> 星期四 </th>
+                            <th> 星期五 </th>
+                            <th> 星期六 </th>
+                        </thead>
+                    </table>
+                </div>
+                <div id="calendar_main" style="width: 100%; height: 100%; padding: 50px; padding-top: 0px; margin: 0;">
+                    <table id="calendar">
 
-                </table>
+                    </table>
+                </div>
             </div>
-        </div>
-        <div id="task_area">
-            <div style="padding: 50px;">
-                <h2> 待做事項 </h2>
-                <ul class="list-group">
-                    <li class="list-group-item"> 2022-01-07 寫網頁 </li>
-                </ul>
+            <div id="task_area">
+                <div style="padding: 50px;">
+                    <h2> 待做事項 </h2>
+                    <ul class="list-group">
+                        <li class="list-group-item"> 2022-01-07 寫網頁 </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </body>

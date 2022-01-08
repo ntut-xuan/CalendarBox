@@ -104,14 +104,35 @@
                     Swal.showLoading();
                     app.auth().signInWithEmailAndPassword(email, password).then((userCredential) => {
                         var user = userCredential.user;
-                        console.log("success");
                         Swal.fire({
                             icon: 'success',
                             title: "登入成功",
                             showConfirmButton: false,
                             timer: 1500
                         }).then((result) => {
-                            window.location.href = "./";
+                            /* doing login */
+                            user.getIdToken().then(tokenID => {
+                                jsonData = {}
+                                jsonData["email"] = email;
+                                jsonData["token"] = tokenID;
+                                requestURL = "./signin"
+                                $.ajax({
+                                    url: requestURL,
+                                    data: JSON.stringify(jsonData),
+                                    type: "POST",
+                                    dataType: "json",
+                                    contentType: "application/json;charset=utf-8",
+                                    success: function(data, status, xhr){
+                                        firebase.auth().signOut();
+                                        window.location.href = "./platform"
+                                    },
+                                    error: function(xhr, ajaxOptions, thrownError){
+                                        console.log(xhr.status);
+                                        console.log(thrownError);
+                                    }
+                                });
+                            })
+                            /* that's all */
                         });
                     })
                     .catch((error) => {

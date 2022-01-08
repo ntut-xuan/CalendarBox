@@ -8,6 +8,7 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 	<script  src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
 	<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
 			overflow-y: hidden;
@@ -55,27 +56,107 @@
                 <p style="margin-top: 34px;"> 註冊 </p>
                 <div class="input-group" style="margin-top: 40px;">
                     <div id="email-div" class="input-group-prepend">
-                        <span class="input-group-text" id="email">使用者名稱</span>
+                        <span class="input-group-text">使用者名稱</span>
                       </div>
-                      <input type="email" class="form-control">
+                      <input type="text" id="username" class="form-control">
                 </div>
                 <div class="input-group" style="margin-top: 20px;">
                     <div id="email-div" class="input-group-prepend">
-                        <span class="input-group-text" id="email">信箱</span>
+                        <span class="input-group-text">信箱</span>
                       </div>
-                      <input type="email" class="form-control">
+                      <input type="email" id="email" class="form-control">
                 </div>
                 <div class="input-group" style="margin-top: 20px;">
                     <div id="email-div" class="input-group-prepend">
-                        <span class="input-group-text" id="email">密碼</span>
+                        <span class="input-group-text" >密碼</span>
                       </div>
-                      <input type="password" class="form-control">
+                      <input type="password" id="password" class="form-control">
                 </div>
-                <button class="btn btn-primary btn-lg btn-block" style="margin-top: 20px;"> 註冊 </button>
+                <button class="btn btn-primary btn-lg btn-block" style="margin-top: 20px;" onclick="register()"> 註冊 </button>
                 <div style="text-align: center; margin-top: 90px">
                     <a href="./login" style="font-size: 10pt; text-align: center;"> 已經有了帳號？登入 </a>
                 </div>
             </div>
 		</div>
     </body>
+    <!--  Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyClv8aHmcjwfjkGuqDrogi46edrezuktfA",
+          authDomain: "ntut-web-c0525.firebaseapp.com",
+          projectId: "ntut-web-c0525",
+          storageBucket: "ntut-web-c0525.appspot.com",
+          messagingSenderId: "690596703723",
+          appId: "1:690596703723:web:f2a2a54b86d458cd1e3dae"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+
+        function register(){
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+            var username = document.getElementById("username").value;
+            Swal.fire({
+                title: "註冊中",
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                    app.auth().createUserWithEmailAndPassword(email, password).then((userCredential) => {
+                        var user = userCredential.user;
+                        console.log("success");
+                        Swal.fire({
+                            icon: 'success',
+                            title: "註冊成功！",
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then((result) => {
+                            user.updateProfile({
+                                displayName: username
+                            }).then(() => {
+                                /* doing login */
+                                user.getIdToken().then(tokenID => {
+                                    jsonData = {}
+                                    jsonData["email"] = email;
+                                    jsonData["token"] = tokenID;
+                                    requestURL = "./signin"
+                                    $.ajax({
+                                        url: requestURL,
+                                        data: JSON.stringify(jsonData),
+                                        type: "POST",
+                                        dataType: "json",
+                                        contentType: "application/json;charset=utf-8",
+                                        success: function(data, status, xhr){
+                                            firebase.auth().signOut();
+                                            window.location.href = "./platform"
+                                        },
+                                        error: function(xhr, ajaxOptions, thrownError){
+                                            console.log(xhr.status);
+                                            console.log(thrownError);
+                                        }
+                                    });
+                                })
+                            })
+                            /* that's all */
+                        });
+                    }).catch((error) => {
+                        var errorCode = error.code;
+                        var errorMessage = error.message;
+                        Swal.fire({
+                            icon: 'error',
+                            title: "註冊失敗",
+                            text: error.message
+                        });
+                    });
+                }
+            });
+        }
+    </script>
 </html>
