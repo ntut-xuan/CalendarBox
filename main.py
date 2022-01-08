@@ -97,9 +97,15 @@ def signin():
         session_map[session_cookie] = data
 
         response = jsonify({'status': 'success'})
+        
         expires = datetime.datetime.now() + expires_in
+
         response.set_cookie("session", session_cookie, expires=expires)
+
+        print(session_map)
+
         return response
+    
     except exceptions.FirebaseError:
         return abort(401, 'Failed to create a session cookie')
 
