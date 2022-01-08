@@ -98,13 +98,14 @@ def signin():
 
         response = jsonify({'status': 'success'})
         expires = datetime.datetime.now() + expires_in
-        response.set_cookie("session", session_cookie, expires=expires, httponly=True, secure=True)
+        response.set_cookie("session", session_cookie, expires=expires)
         return response
     except exceptions.FirebaseError:
         return abort(401, 'Failed to create a session cookie')
 
 @app.route("/logout", methods=["GET"])
 def logout():
+
     session_cookie = request.cookies.get('session')
 
     if session_cookie is None:
