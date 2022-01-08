@@ -1,0 +1,10 @@
+#new-task-area {
+    position: absolute; 
+    left: 20%; 
+    top: 10%; 
+    width: 70%;
+    color: black;
+    padding: 3%;
+    background-color: rgba(255,99,71,0.5);
+    border-radius: 10px;
+}

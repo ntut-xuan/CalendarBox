@@ -1,14 +1,24 @@
 <html>
     <meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-	<link rel="stylesheet" href="./static/index.css">
+	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 	<script  src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
 	<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script src="https://kit.fontawesome.com/7b0276e0ce.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@duetds/date-picker@1.4.0/dist/duet/duet.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@duetds/date-picker@1.4.0/dist/duet/duet.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/css-toggle-switch@latest/dist/toggle-switch.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@duetds/date-picker@1.4.0/dist/duet/themes/default.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/index.css">
+    <link rel="stylesheet" href="/static/new-task.css">
+    <link rel="stylesheet" href="/static/switch.css">
+    
     <style>
         #sidebar {
             position: absolute;
@@ -21,7 +31,6 @@
             left: 0%;
             width: 15%;
             height: 100%;
-            animation: fadin 1.5s;
         }
         #topbar {
             position: absolute;
@@ -44,11 +53,11 @@
             text-align: left;
             list-style: none;
             cursor: pointer;
+            transition: color 0.5s, background-color 0.5s;
         }
-        a {
-            color: black;
+        .sidebar-li a {
             text-decoration: none;
-            pointer-events: none;
+            color: black;
         }
         .sidebar-li:hover {
             background-color: black; 
@@ -62,19 +71,20 @@
             background-color: aquamarine; 
             color: black;
         }
-        th {
+        #calendar_area th {
             border: solid;
             border-width: 15px 15px 0px 15px;
             border-color: mediumorchid;
             text-align: left;
         }
-        td {
+        #calendar_area td {
             width: 100px;
             height: 100px;
+            background-color: rgb(255, 255, 255, 0.5);
             border: solid;
             border-width: 15px;
             border-color: mediumorchid;
-            background-color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
         }
         #calendar_area {
             position: absolute; 
@@ -106,15 +116,69 @@
             background-color: gray; 
             height: 45px; 
             font-size: 18pt; 
-            padding: 5px; 
+            padding: 5px;   
             text-align: left; 
             padding-left: 15px;
         }
-        td:hover {
+        #calendar_area td:hover {
             background-color: rgba(255, 255, 255, 1);
         }
         #user:hover {
             background-color: rgb(150, 150, 150, 0.7);
+        }
+        .list-group button:hover {
+            background: rgba(124, 252, 0, 0.5);
+        }
+        #schedule-title {
+            position: absolute; 
+            left: 20%; 
+            top: 10%; 
+            width: 35%;
+            color: black; 
+            border-radius: 10px;
+            box-shadow:2px 2px 2px 1px #cccccc;
+            background-color: rgb(255, 195, 82);
+            border-radius: 10px;
+            padding: 50px;
+            animation: fadin 1.5s;
+        }
+        #schedule-info {
+            position: absolute; 
+            left: 20%; 
+            top: 30%; 
+            width: 35%;
+            border-radius: 10px;
+            background-color: rgb(192, 248, 192);
+            box-shadow:2px 2px 2px 1px #cccccc;
+            padding: 50px;
+        }
+        #schedule-img {
+            position: absolute; 
+            left: 60%; 
+            top: 10%; 
+            width: 35%;
+            height: 60%;
+            color: black; 
+            border-radius: 10px;
+            padding: 50px;
+            text-align: center;
+            animation: fadin 1.5s;
+            box-shadow:2px 2px 2px 1px #cccccc;
+        }
+        #schedule-img img {
+            width: auto;
+            height: 100%;
+            border-radius: 10px;
+            animation: fadin 1.5s 0.5s;
+            box-shadow:2px 2px 2px 1px #cccccc;
+        }
+        @keyframes fadeout {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
         }
         @keyframes fadin {
             from {
@@ -126,21 +190,17 @@
         }
         @keyframes down-slidein {
             from {
-                opacity: 0;
                 top: 0;
             }
             to {
-                opacity: 1;
                 top: 10%;
             }
         }
         @keyframes left-slidein {
             from {
-                opacity: 0;
                 right: 0;
             }
             to {
-                opacity: 1;
                 right: 10%;
             }
         }
@@ -159,34 +219,32 @@
         });
     </script>
     <body>
-        <div>
+        <div id="sidebar-area">
             <a id="index" href="./" style="z-index: 1;"> CalendarBox </a>
             <div id="sidebar">
-                <li class="sidebar-li active">
+                <li class="sidebar-li active" id="li_index">
                     <i class="fas fa-address-card" style="width: 24px; height: 24px;"></i>
-                    <a> Index </a>
+                    <a> 待做事項 - 主頁 </a>
                 </li>
-                <li class="sidebar-li inactive">
-                    <i class="fas fa-pen" style="width: 24px; height: 24px;"></i>
-                    <a> Add New Task </a>
+                <li class="sidebar-li inactive" id="li_addSchedule">
+                    <i class="fas fa-pen" style="width: 24px; height: 24px;" ></i>
+                    <a> 新增行程 </a>
                 </li>
-                <li class="sidebar-li inactive">
-                    <i class="fas fa-pen" style="width: 24px; height: 24px;"></i>
-                    <a> Add New Note </a>
-                </li>
-                <li class="sidebar-li inactive">
+                <li class="sidebar-li inactive" id="li_setting">
                     <i class="fas fa-cogs" style="width: 24px; height: 24px;"></i>
-                    <a> Edit Setting </a>
+                    <a> 設定 </a>
                 </li>
-                <li class="sidebar-li inactive">
-                    <i class="fas fa-sign-out-alt" style="width: 24px; height: 24px;"></i>
-                    <a href="./logout"> Log out </a>
+                <li class="sidebar-li inactive" id="li_logout">
+                    <i class="fas fa-sign-out-alt" style="width: 24px; height: 24px; color: inherit;"></i>
+                    <a style="color: inherit;"> 登出 </a>
                 </li>
             </div>
             <div id="user">
                 <i class="fas fa-running"></i>
                 <a id="user_email"> </a>
             </div>
+        </div>
+        <div id="main-area" style="visibility: visible;">
             <div id="calendar_area">
                 <div id="calendar_title" style="height: 20%; width: 100%; padding: 50px; padding-bottom: 0px;">
                     <h2> 2022 一月 </h2>
@@ -211,22 +269,223 @@
             <div id="task_area">
                 <div style="padding: 50px;">
                     <h2> 待做事項 </h2>
-                    <ul class="list-group">
-                        <li class="list-group-item"> 2022-01-07 寫網頁 </li>
+                    <ul class="list-group" style="margin-top: 30px;">
+                        <button class="list-group-item" style="text-align: left; margin-top: 10px;"> 2022-01-07 寫網頁 </button>
+                        <button class="list-group-item" style="text-align: left; margin-top: 10px;"> 2022-01-07 寫網頁 </button>
                     </ul>
                 </div>
             </div>
         </div>
+        <div id="sub-area" style="visibility: hidden;">
+            <div id="schedule-title">
+                <h2> 01/08 行程資訊 </h2>
+            </div>
+            <div id="schedule-img">
+                <img src="https://images.pexels.com/photos/3680219/pexels-photo-3680219.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500">
+            </div>
+            <div id="schedule-info">
+                <div class="list-group">
+                    <a class="list-group-item list-group-item-action active"> 吃飯 </a>
+                    <a class="list-group-item list-group-item-action"> 看電影</a>
+                    <a class="list-group-item list-group-item-action"> 吃點心</a>
+                    <a class="list-group-item list-group-item-action disabled"> 玩 </a>
+                  </div>
+            </div>
+        </div>
+        <div id="add-new-task" style="visibility: hidden; font-size: 18px;">
+            <div id="new-task-area">
+                <div id="main_area" style="float: left; width: 50%; height: 100%;">
+                    <h2> 新增行程 </h2>
+                    <label style="margin-top: 50px;"> 行程名稱 </label>
+                    <input type="text" class="form-control" id="schedule_data_title"> </input>
+
+                    <label style="margin-top: 30px;"> 行程時間（開始） </label>
+                    <duet-date-picker identifier="date" id="schedule_data_start_time"></duet-date-picker>
+
+                    <label style="margin-top: 30px;"> 行程時間（結束） </label>
+                    <duet-date-picker identifier="date" id="schedule_data_end_time"></duet-date-picker>
+
+                    <label style="margin-top: 30px;"> 新增一張圖片 </label>
+                    <input type="text" class="form-control" id="schedule_data_photo"> </input>
+
+                    <label class="switch-light switch-candy" style="margin-top: 30px;" onclick="">
+                        <input type="checkbox" id="schedule_data_open_deadline">
+
+                        <strong>
+                            開啟倒數器
+                        </strong>
+
+                        <span>
+                            <span>Off</span>
+                            <span>On</span>
+                            <a></a>
+                        </span>
+                    </label>
+
+                </div>
+                <div id="note_area" style="float: right; width: 45%; height: 100%">
+                    <h2> 　 </h2>
+                    <label style="margin-top: 50px;"> 行程詳細 </label>
+                    <textarea class="form-control" id="schedule_data_detail" rows="16"></textarea>
+                    <button style="margin-top: 50px;" class="btn btn-primary btn-lg btn-block" onclick="upload_schedule()"> 完成 </button>
+                    <button style="margin-top: 10px;" class="btn btn-secondary btn-lg btn-block"> 預覽 markdown </button>
+                </div>
+            </div>
+        </div>
     </body>
+    <!--  Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
+    <script src="/static/main.js"></script>
+
+    <script>
+        function sidebar_clear(){
+            var li = ["li_index", "li_addSchedule", "li_setting", "li_logout"]
+            for(var i = 0; i < li.length; i++){
+                var item = document.getElementById(li[i]);
+                item.setAttribute("class", "sidebar-li inactive")
+            }
+        }
+        function area_clear(){
+            var li = ["main-area", "sub-area", "add-new-task"]
+            for(var i = 0; i < li.length; i++){
+                var item = document.getElementById(li[i]);
+                document.getElementById(li[i]).style.setProperty("visibility", "hidden");
+            }
+        }
+        function animation_reset(){
+            var div = ["calendar_area", "task_area", "new-task-area"]
+            for(var i = 0; i < div.length; i++){
+                var item = document.getElementById(div[i]);
+                document.getElementById(div[i]).style.setProperty("animation", "none");
+            }
+        }
+    </script>
     <script>
         var table = document.getElementById("calendar");
         for(var i = 0; i < 6; i++){
             var tr = document.createElement("tr");
             for(var j = 0; j < 7; j++){
                 var td = document.createElement("td");
+                td.addEventListener("click", function(){
+                    area_clear();
+                    document.getElementById("sub-area").style.setProperty("visibility", "visible");
+                });
                 tr.appendChild(td);
             }
             table.appendChild(tr);
+        }
+
+        var index = document.getElementById("li_index");
+        index.addEventListener("click", function(){
+            animation_reset();
+            sidebar_clear();
+            area_clear();
+            index.setAttribute("class", "sidebar-li active");
+            document.getElementById("main-area").style.setProperty("visibility", "visible");
+            document.getElementById("calendar_area").style.setProperty("animation", "down-slidein 1.5s");
+            document.getElementById("task_area").style.setProperty("animation", "left-slidein 1.5s");
+        });
+
+        var addtask = document.getElementById("li_addSchedule");
+        addtask.addEventListener("click", function(){
+            animation_reset();
+            sidebar_clear();
+            area_clear();
+            addtask.setAttribute("class", "sidebar-li active");
+            document.getElementById("add-new-task").style.setProperty("visibility", "visible");
+            document.getElementById("new-task-area").style.setProperty("animation", "down-slidein 1.5s");
+        });
+
+        var logout = document.getElementById("li_logout");
+        logout.addEventListener("click", logout_func);
+
+        function logout_func(){
+            Swal.fire({
+                icon: 'success',
+                title: "已登出",
+                showConfirmButton: false,
+                timer: 1500
+            }).then((result) => {
+                window.location.href = "./logout";
+            });
+        }
+
+        function upload_schedule(){
+
+            var title = document.getElementById("schedule_data_title");
+            var start_time = document.getElementById("schedule_data_start_time");
+            var end_time = document.getElementById("schedule_data_end_time");
+            var photo_url = document.getElementById("schedule_data_photo");
+            var deadline_option = document.getElementById("schedule_data_open_deadline");
+            var detail = document.getElementById("schedule_data_detail");
+
+            var user_schedule = {};
+            var user_name = document.getElementById("user_email").innerText;
+
+            var data = db.collection("schedule").doc(user_name);
+
+            if (title.value == "" || start_time == "" || end_time == ""){
+                Swal.fire({
+                    icon: "error",
+                    title: "必須要設定標題、開始時間與結束時間",
+                    showConfirmButton: true
+                });
+                return;
+            }
+
+            data.get().then((doc) => {
+                if(doc.exists){
+                    user_schedule = doc.data();
+                    console.log("Document data:", doc.data());
+                }else{
+                    console.log("No data");
+                }
+            }).catch((error) => {
+                console.log("Error getting document:", error);
+            }).then(() => {
+
+                console.log(user_schedule);
+
+                data_package = {}
+                data_package["title"] = title.value;
+                data_package["start_time"] = start_time.value;
+                data_package["end_time"] = end_time.value;
+                data_package["photo_url"] = photo_url.value;
+                data_package["deadline_option"] = deadline_option.value;
+                data_package["detail"] = detail.value;
+
+                random_hash = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+                user_schedule[random_hash] = data_package;
+
+                Swal.fire({
+                    title: "上傳中",
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        Swal.showLoading();
+                        db.collection("schedule").doc(document.getElementById("user_email").innerText).set(user_schedule)
+                        .then(() => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: "上傳成功",
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.reload();
+                            })
+                        })
+                        .catch((error) => {
+                            console.error("Error writing document: ", error);
+                        });
+                    }
+                });
+            });
         }
     </script>
 </html>

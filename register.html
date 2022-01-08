@@ -72,7 +72,7 @@
                       </div>
                       <input type="password" id="password" class="form-control">
                 </div>
-                <button class="btn btn-primary btn-lg btn-block" style="margin-top: 20px;" onclick="register()"> 註冊 </button>
+                <button id="btn" class="btn btn-primary btn-lg btn-block" style="margin-top: 20px;" onclick="register()"> 註冊 </button>
                 <div style="text-align: center; margin-top: 90px">
                     <a href="./login" style="font-size: 10pt; text-align: center;"> 已經有了帳號？登入 </a>
                 </div>
@@ -85,19 +85,31 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
+    <script src="/static/main.js"></script>
     <script>
-        const firebaseConfig = {
-          apiKey: "AIzaSyClv8aHmcjwfjkGuqDrogi46edrezuktfA",
-          authDomain: "ntut-web-c0525.firebaseapp.com",
-          projectId: "ntut-web-c0525",
-          storageBucket: "ntut-web-c0525.appspot.com",
-          messagingSenderId: "690596703723",
-          appId: "1:690596703723:web:f2a2a54b86d458cd1e3dae"
-        };
-
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-
+        var username = document.getElementById("username");
+        var email = document.getElementById("email");
+        var password = document.getElementById("password");
+        username.addEventListener("keyup", function(event){
+            if(event.keyCode == 13){
+                event.preventDefault();
+                document.getElementById("btn").click();
+            }
+        });
+        email.addEventListener("keyup", function(event){
+            if(event.keyCode == 13){
+                event.preventDefault();
+                document.getElementById("btn").click();
+            }
+        });
+        password.addEventListener("keyup", function(event){
+            if(event.keyCode == 13){
+                event.preventDefault();
+                document.getElementById("btn").click();
+            }
+        });
+    </script>
+    <script>
         function register(){
             var email = document.getElementById("email").value;
             var password = document.getElementById("password").value;

@@ -1,6 +1,6 @@
 @font-face {
     font-family: "Open 24 Display St";
-    src: url('./static/Open 24 Display St.ttf');
+    src: url('/static/Open 24 Display St.ttf');
 }
 
 #index{

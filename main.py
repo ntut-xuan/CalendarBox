@@ -47,7 +47,7 @@ def getPlatform():
     
     session_cookie = request.cookies.get('session')
 
-    if not session_cookie:
+    if not session_cookie or session_cookie not in session_map:
         return redirect('/login')
     
     if request.method == "GET":
@@ -62,6 +62,25 @@ def getPlatform():
         # Session cookie is invalid, expired or revoked. Force user to login.
         return redirect('/login')
 
+@app.route("/platform/addSchedule", methods=["GET", "POST"])
+def getPlatformAddSchedule():
+    
+    session_cookie = request.cookies.get('session')
+
+    if not session_cookie or session_cookie not in session_map:
+        return redirect('/login')
+    
+    if request.method == "GET":
+        index_html = open("./platform-addSchedule.html", "r", encoding="utf-8")
+        return index_html.read()
+
+    try:
+        decoded_claims = auth.verify_session_cookie(session_cookie, check_revoked=True)
+        return json.dumps(session_map[session_cookie])
+    
+    except auth.InvalidSessionCookieError:
+        # Session cookie is invalid, expired or revoked. Force user to login.
+        return redirect('/login')
 
 @app.route("/signin", methods=["POST"])
 def signin():
@@ -84,6 +103,15 @@ def signin():
     except exceptions.FirebaseError:
         return abort(401, 'Failed to create a session cookie')
 
+@app.route("/logout", methods=["GET"])
+def logout():
+    session_cookie = request.cookies.get('session')
+
+    if session_cookie is None:
+        return redirect("/")
+    
+    del session_map[session_cookie]
+    return redirect("/")
 
 if __name__ == "__main__":
     app.debug = True
