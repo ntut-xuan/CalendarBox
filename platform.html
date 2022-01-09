@@ -81,14 +81,23 @@
             border-color: mediumorchid;
             text-align: left;
         }
-        #calendar_area td {
+        .calendar_area_enable {
             width: 100px;
             height: 100px;
-            background-color: rgb(255, 255, 255, 0.5);
+            background-color: rgb(255, 255, 255, 0.7);
             border: solid;
             border-width: 15px;
             border-color: mediumorchid;
             cursor: pointer;
+        }
+        .calendar_area_disable {
+            width: 100px;
+            height: 100px;
+            background-color: rgb(255, 255, 255, 0.3);
+            border: solid;
+            border-width: 15px;
+            border-color: mediumorchid;
+            cursor: default;
         }
         #calendar_area {
             position: absolute; 
@@ -124,7 +133,7 @@
             text-align: left; 
             padding-left: 15px;
         }
-        #calendar_area td:hover {
+        .calendar_area_enable:hover {
             background-color: rgba(255, 255, 255, 1);
         }
         #user:hover {
@@ -399,22 +408,21 @@
                 var tr = document.createElement("tr");
                 for(var j = 0; j < 7; j++){
                     var td = document.createElement("td");
-                    td.addEventListener("click", function(){
-                        area_clear();
-                        document.getElementById("sub-area").style.setProperty("visibility", "visible");
-                    });
+
                     td.setAttribute("id", i.toString() + "-" + j.toString());
+                    td.setAttribute("class", "calendar_area_enable");
                     td.style.setProperty("position", "relative");
                     td.style.setProperty("font-family", "Noto Sans");
                     td.style.setProperty("padding", "1%");
 
                     var span = document.createElement("span");
+                    span.setAttribute("id", "calendar-date-" + i.toString() + "-" + j.toString())
                     span.style.setProperty("position", "absolute");
                     span.style.setProperty("top", "5%");
                     span.style.setProperty("left", "5%");
-                    span.innerText = i*7+j;
 
                     var count = document.createElement("span");
+                    count.setAttribute("id", "calendar-count-" + i.toString() + "-" + j.toString())
                     count.style.setProperty("position", "absolute");
                     count.style.setProperty("left", "50%");
                     count.style.setProperty("buttom", "0%");
@@ -422,7 +430,6 @@
                     count.style.setProperty("font-weight", "bold");
                     count.style.setProperty("white-space", "nowrap");
                     count.style.setProperty("transform", "translate(-50% , 0%)");
-                    count.innerText = "50";
 
                     td.appendChild(span);
                     td.appendChild(count);
@@ -454,6 +461,8 @@
 
             var logout = document.getElementById("li_logout");
             logout.addEventListener("click", logout_func);
+
+            drawCalendarNumber(2022, 1);
 
         }
 
@@ -545,6 +554,47 @@
                     }
                 });
             });
+        }
+
+        function drawCalendarNumber(year, month){
+            var day = new Date(year, month-1, 1);
+            var weekOfDay = day.getUTCDay();
+            console.log(weekOfDay);
+            var index = weekOfDay + 1;
+            var countday = 1;
+            var maxDay = new Date(year, month, 0).getDate();
+            for(var i = index/7; countday <= maxDay; i++){
+                for(var j = index%7; countday <= maxDay; index++){
+
+                    var id = parseInt(index/7).toString() + "-" + parseInt(index%7).toString();
+                    var td = document.getElementById(id);
+
+                    console.log("calendar-count-" + id);
+
+                    var date_span = document.getElementById("calendar-date-" + id);
+                    var count_span = document.getElementById("calendar-count-" + id);
+
+                    date_span.innerText = countday;
+                    count_span.innerText = "50";
+                    
+                    td.addEventListener("click", function(){
+                        area_clear();
+                        document.getElementById("sub-area").style.setProperty("visibility", "visible");
+                    });
+
+                    countday += 1;
+                }
+            }
+            for(var i = 0; i < 6; i++){
+                for(var j = 0; j < 7; j++){
+                    var span_id = "calendar-date-" + parseInt(i).toString() + "-" + parseInt(j).toString();
+                    if(document.getElementById(span_id).innerText === ""){
+                        var id = parseInt(i).toString() + "-" + parseInt(j).toString();
+                        var td = document.getElementById(id);
+                        td.setAttribute("class", "calendar_area_disable");
+                    }
+                }
+            }
         }
     </script>
 </html>
