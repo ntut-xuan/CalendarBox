@@ -139,8 +139,9 @@
         #user:hover {
             background-color: rgb(150, 150, 150, 0.7);
         }
-        .list-group button:hover {
-            background: rgba(124, 252, 0, 0.5);
+        .task_content_div:hover {
+            background: rgba(195, 255, 135);
+            cursor: pointer;
         }
         #schedule-title {
             position: absolute; 
@@ -269,12 +270,16 @@
 
                     </table>
                 </div>
+                <button id="next-page" class="btn btn-warning" style="position: absolute; right: 0; top: 50%;">
+                    <i class="fas fa-arrow-circle-right fa-2x"></i>
+                </button>
+                <button id="prev-page" class="btn btn-warning" style="position: absolute; left: 0; top: 50%;">
+                    <i class="fas fa-arrow-circle-left fa-2x"></i>
+                </button>
             </div>
-            <div id="task_area">
-                <div style="padding: 50px;">
-                    <h2> 待做事項 </h2>
-                    <ul id="todo-ul" class="list-group" style="margin-top: 30px;">
-                    </ul>
+            <div id="task_area" style="padding: 50px;">
+                <h2> 事項 </h2>
+                <div id="task_group" class="list-group" style="padding-top: 20px;">
                 </div>
             </div>
         </div>
@@ -371,18 +376,51 @@
 
             var firebase_fetch = db.collection("schedule").doc(user_name);
 
+            var task_group = document.getElementById("task_ul_group");
+
             firebase_fetch.get().then((doc) => {
+
                 var jsonData = doc.data();
                 var keyList = Object.keys(jsonData);
                 console.log(jsonData);
+
+                var item_div = document.getElementById("task_group");
+
                 for(var i = 0; i < keyList.length; i++){
+
                     var data = jsonData[keyList[i]];
-                    var button = document.createElement("button");
-                    var ul = document.getElementById("todo-ul");
-                    console.log(data);
-                    button.setAttribute("class", "list-group-item list-group-item-action");
-                    button.innerText = data["start_time"] + " " + data["title"];
-                    ul.append(button);
+                    
+                    var item = document.createElement("a");
+                    item.setAttribute("class", "list-group-item list-group-item-action task_content_div");
+                    item.style.setProperty("cursor", "pointer");
+                    item.style.setProperty("margin-top", "10px");
+
+                    var content_div = document.createElement("div");
+                    content_div.setAttribute("class", "d-flex w-100 justify-content-between");
+
+                    var title = document.createElement("h5");
+                    title.setAttribute("class", "mb-1");
+                    title.innerText = data["title"];
+
+                    var small = document.createElement("small");
+                    small.innerText = data["start_time"];
+                    
+                    var p = document.createElement("p");
+                    p.setAttribute("class", "mb-1");
+                    p.innerText = data["detail"].split("<br>")[0].replace("<sp>", " ") + (data["detail"].split("<br>").length > 2 ? "..." : "");
+                    
+                    var outer_small = document.createElement("small");
+                    outer_small.innerText = data["start_time"] + " - " + data["end_time"];
+
+                    content_div.append(title);
+                    content_div.append(small);
+
+                    item.append(content_div);
+                    item.append(p);
+                    item.append(outer_small);
+
+                    item_div.append(item);
+
                 }
             });
         }
@@ -399,10 +437,22 @@
             contentType: "application/json;charset=utf-8",
             success: function(data, status, xhr){
                 console.log(data);
-                var a = document.getElementById("user_email");
-                a.innerText = data["name"];
-                init();
-                fetchSchedule();
+                Swal.fire({
+                    icon: "info",
+                    text: "載入中...",
+                    customClass: {
+                        container: "position-absolute"
+                    },
+                    timer: 1500,
+                    timerProgressBar: true,
+                    didOpen: (() => {
+                        Swal.showLoading();
+                        var a = document.getElementById("user_email");
+                        a.innerText = data["name"];
+                        init();
+                        fetchSchedule();
+                    })
+                })
             }
         });
 
@@ -411,7 +461,6 @@
             var date = new Date();
             current_calendar_year = date.getFullYear();
             current_calendar_month = date.getMonth() + 1;
-            document.getElementById("calendar_time").innerText = current_calendar_year.toString() + "年 " + current_calendar_month.toString() + "月"; 
 
             var table = document.getElementById("calendar");
             for(var i = 0; i < 6; i++){
@@ -448,6 +497,7 @@
                 }
                 table.appendChild(tr);
             }
+
             var index = document.getElementById("li_index");
             index.addEventListener("click", function(){
                 animation_reset();
@@ -474,9 +524,51 @@
             var logout = document.getElementById("li_logout");
             logout.addEventListener("click", logout_func);
 
+            var next_page = document.getElementById("next-page");
+            next_page.addEventListener("click", function(){
+                current_calendar_month += 1;
+                drawCalendarNumber();
+                drawCalendarTaskNumber();
+                drawCalendarTitle();
+                Swal.fire({
+                    text: "載入中...",
+                    target: "#calendar_area",
+                    timer: 1000,
+                    showConfirmButton: false,
+                    timerProgressBar: true,
+                    customClass: {
+                        container: "position-absolute"
+                    },
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                })
+            });
+
+            var prev_page = document.getElementById("prev-page");
+            prev_page.addEventListener("click", function(){
+                current_calendar_month -= 1;
+                drawCalendarNumber();
+                drawCalendarTaskNumber();
+                drawCalendarTitle();
+                Swal.fire({
+                    text: "載入中...",
+                    timer: 1000,
+                    timerProgressBar: true,
+                    target: "#calendar_area",
+                    showConfirmButton: false,
+                    customClass: {
+                        container: "position-absolute"
+                    },
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                })
+            });
+
             drawCalendarNumber()
             drawCalendarTaskNumber();
-
+            drawCalendarTitle();
         }
 
         function logout_func(){
@@ -569,12 +661,25 @@
             });
         }
 
+        function drawCalendarTitle(){
+            var date = new Date(current_calendar_year, current_calendar_month-1, 1);
+            document.getElementById("calendar_time").innerText = date.getFullYear().toString() + "年 " + (date.getMonth()+1).toString() + "月"; 
+        }
+
         function drawCalendarNumber(){
             var day = new Date(current_calendar_year, current_calendar_month-1, 1);
             var weekOfDay = day.getUTCDay();
             var index = weekOfDay + 1;
             var countday = 1;
             var maxDay = new Date(current_calendar_year, current_calendar_month, 0).getDate();
+            for(var i = 0; i < 6; i++){
+                for(var j = 0; j < 7; j++){
+                    var id = parseInt(i).toString() + "-" + parseInt(j).toString();
+                    var span_id = "calendar-date-" + parseInt(i).toString() + "-" + parseInt(j).toString();
+                    document.getElementById(id).setAttribute("class", "calendar_area_enable");
+                    document.getElementById(span_id).innerText = "";
+                }
+            }
             for(var i = index/7; countday <= maxDay; i++){
                 for(var j = index%7; countday <= maxDay; index++){
 
@@ -622,7 +727,14 @@
             }).then(() => {
 
                 var keys = Object.keys(schedule);
-                
+                for(var i = 0; i < 6; i++){
+                    for(var j = 0; j < 7; j++){
+                        var id = parseInt(i).toString() + "-" + parseInt(j).toString();
+                        var span_id = "calendar-count-" + id;
+                        document.getElementById(span_id).innerText = "";
+                    }
+                }
+
                 for(var i = 0; i < 6; i++){
                     for(var j = 0; j < 7; j++){
 
