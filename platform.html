@@ -20,6 +20,10 @@
     <link rel="stylesheet" href="/static/switch.css">
     
     <style>
+        @font-face {
+            font-family: "Open 24 Display St";
+            src: url("/static/Open\ 24\ Display\ St.ttf");
+        }
         #sidebar {
             position: absolute;
             background-color: aquamarine;
@@ -162,14 +166,14 @@
             border-radius: 10px;
             padding: 50px;
             text-align: center;
-            animation: fadin 1.5s;
+            animation: fadin 3s;
             box-shadow:2px 2px 2px 1px #cccccc;
         }
         #schedule-img img {
             width: auto;
             height: 100%;
             border-radius: 10px;
-            animation: fadin 1.5s 0.5s;
+            animation: fadin 3s 0.5s;
             box-shadow:2px 2px 2px 1px #cccccc;
         }
         @keyframes fadeout {
@@ -191,33 +195,24 @@
         @keyframes down-slidein {
             from {
                 top: 0;
+                opacity: 0;
             }
             to {
                 top: 10%;
+                opacity: 1;
             }
         }
         @keyframes left-slidein {
             from {
                 right: 0;
+                opacity: 0;
             }
             to {
                 right: 10%;
+                opacity: 1;
             }
         }
     </style>
-    <script>
-        $.ajax({
-            url: "./platform",
-            type: "POST",
-            dataType: "json",
-            contentType: "application/json;charset=utf-8",
-            success: function(data, status, xhr){
-                console.log(data);
-                var a = document.getElementById("user_email");
-                a.innerText = data["name"];
-            }
-        });
-    </script>
     <body>
         <div id="sidebar-area">
             <a id="index" href="./" style="z-index: 1;"> CalendarBox </a>
@@ -269,9 +264,7 @@
             <div id="task_area">
                 <div style="padding: 50px;">
                     <h2> 待做事項 </h2>
-                    <ul class="list-group" style="margin-top: 30px;">
-                        <button class="list-group-item" style="text-align: left; margin-top: 10px;"> 2022-01-07 寫網頁 </button>
-                        <button class="list-group-item" style="text-align: left; margin-top: 10px;"> 2022-01-07 寫網頁 </button>
+                    <ul id="todo-ul" class="list-group" style="margin-top: 30px;">
                     </ul>
                 </div>
             </div>
@@ -363,45 +356,106 @@
                 document.getElementById(div[i]).style.setProperty("animation", "none");
             }
         }
+        function fetchSchedule(){
+
+            var user_name = document.getElementById("user_email").innerText;
+
+            var firebase_fetch = db.collection("schedule").doc(user_name);
+
+            firebase_fetch.get().then((doc) => {
+                var jsonData = doc.data();
+                var keyList = Object.keys(jsonData);
+                console.log(jsonData);
+                for(var i = 0; i < keyList.length; i++){
+                    var data = jsonData[keyList[i]];
+                    var button = document.createElement("button");
+                    var ul = document.getElementById("todo-ul");
+                    console.log(data);
+                    button.setAttribute("class", "list-group-item list-group-item-action");
+                    button.innerText = data["start_time"] + " " + data["title"];
+                    ul.append(button);
+                }
+            });
+        }
     </script>
     <script>
-        var table = document.getElementById("calendar");
-        for(var i = 0; i < 6; i++){
-            var tr = document.createElement("tr");
-            for(var j = 0; j < 7; j++){
-                var td = document.createElement("td");
-                td.addEventListener("click", function(){
-                    area_clear();
-                    document.getElementById("sub-area").style.setProperty("visibility", "visible");
-                });
-                tr.appendChild(td);
+        $.ajax({
+            url: "./platform",
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json;charset=utf-8",
+            success: function(data, status, xhr){
+                console.log(data);
+                var a = document.getElementById("user_email");
+                a.innerText = data["name"];
+                init();
+                fetchSchedule();
             }
-            table.appendChild(tr);
+        });
+
+        function init(){
+            var table = document.getElementById("calendar");
+            for(var i = 0; i < 6; i++){
+                var tr = document.createElement("tr");
+                for(var j = 0; j < 7; j++){
+                    var td = document.createElement("td");
+                    td.addEventListener("click", function(){
+                        area_clear();
+                        document.getElementById("sub-area").style.setProperty("visibility", "visible");
+                    });
+                    td.setAttribute("id", i.toString() + "-" + j.toString());
+                    td.style.setProperty("position", "relative");
+                    td.style.setProperty("font-family", "Noto Sans");
+                    td.style.setProperty("padding", "1%");
+
+                    var span = document.createElement("span");
+                    span.style.setProperty("position", "absolute");
+                    span.style.setProperty("top", "5%");
+                    span.style.setProperty("left", "5%");
+                    span.innerText = i*7+j;
+
+                    var count = document.createElement("span");
+                    count.style.setProperty("position", "absolute");
+                    count.style.setProperty("left", "50%");
+                    count.style.setProperty("buttom", "0%");
+                    count.style.setProperty("font-size", "24pt");
+                    count.style.setProperty("font-weight", "bold");
+                    count.style.setProperty("white-space", "nowrap");
+                    count.style.setProperty("transform", "translate(-50% , 0%)");
+                    count.innerText = "50";
+
+                    td.appendChild(span);
+                    td.appendChild(count);
+
+                    tr.appendChild(td);
+                }
+                table.appendChild(tr);
+            }
+            var index = document.getElementById("li_index");
+            index.addEventListener("click", function(){
+                animation_reset();
+                sidebar_clear();
+                area_clear();
+                index.setAttribute("class", "sidebar-li active");
+                document.getElementById("main-area").style.setProperty("visibility", "visible");
+                document.getElementById("calendar_area").style.setProperty("animation", "down-slidein 1.5s");
+                document.getElementById("task_area").style.setProperty("animation", "left-slidein 1.5s");
+            });
+
+            var addtask = document.getElementById("li_addSchedule");
+            addtask.addEventListener("click", function(){
+                animation_reset();
+                sidebar_clear();
+                area_clear();
+                addtask.setAttribute("class", "sidebar-li active");
+                document.getElementById("add-new-task").style.setProperty("visibility", "visible");
+                document.getElementById("new-task-area").style.setProperty("animation", "down-slidein 1.5s");
+            });
+
+            var logout = document.getElementById("li_logout");
+            logout.addEventListener("click", logout_func);
+
         }
-
-        var index = document.getElementById("li_index");
-        index.addEventListener("click", function(){
-            animation_reset();
-            sidebar_clear();
-            area_clear();
-            index.setAttribute("class", "sidebar-li active");
-            document.getElementById("main-area").style.setProperty("visibility", "visible");
-            document.getElementById("calendar_area").style.setProperty("animation", "down-slidein 1.5s");
-            document.getElementById("task_area").style.setProperty("animation", "left-slidein 1.5s");
-        });
-
-        var addtask = document.getElementById("li_addSchedule");
-        addtask.addEventListener("click", function(){
-            animation_reset();
-            sidebar_clear();
-            area_clear();
-            addtask.setAttribute("class", "sidebar-li active");
-            document.getElementById("add-new-task").style.setProperty("visibility", "visible");
-            document.getElementById("new-task-area").style.setProperty("animation", "down-slidein 1.5s");
-        });
-
-        var logout = document.getElementById("li_logout");
-        logout.addEventListener("click", logout_func);
 
         function logout_func(){
             Swal.fire({
@@ -413,7 +467,7 @@
                 window.location.href = "./logout";
             });
         }
-
+        
         function upload_schedule(){
 
             var title = document.getElementById("schedule_data_title");
@@ -428,7 +482,7 @@
 
             var data = db.collection("schedule").doc(user_name);
 
-            if (title.value == "" || start_time == "" || end_time == ""){
+            if (title.value === "" || start_time.value === "" || end_time.value === ""){
                 Swal.fire({
                     icon: "error",
                     title: "必須要設定標題、開始時間與結束時間",
@@ -450,14 +504,19 @@
 
                 console.log(user_schedule);
 
+
+                var detail_string = detail.value.replace(/(?: |\r|\n|\r\n)/g, function(m) {
+                    return m === " " ? "<sp>" : "<br>";
+                });
+
                 data_package = {}
                 data_package["title"] = title.value;
                 data_package["start_time"] = start_time.value;
                 data_package["end_time"] = end_time.value;
                 data_package["photo_url"] = photo_url.value;
                 data_package["deadline_option"] = deadline_option.value;
-                data_package["detail"] = detail.value;
-
+                data_package["detail"] = detail_string;
+                
                 random_hash = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
                 user_schedule[random_hash] = data_package;

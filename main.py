@@ -28,16 +28,34 @@ def returnStaticFile(path):
 
 @app.route("/")
 def getIndex():
+    
+    session_cookie = request.cookies.get('session')
+
+    if session_cookie in session_map:
+        return redirect('/platform')
+
     index_html = open("./index.html", "r", encoding="utf-8")
     return index_html.read()
 
 @app.route("/login")
 def getLogin():
+
+    session_cookie = request.cookies.get('session')
+
+    if session_cookie in session_map:
+        return redirect('/platform')
+    
     index_html = open("./login.html", "r", encoding="utf-8")
     return index_html.read()
 
 @app.route("/register", methods=["GET", "POST"])
 def getRegister():
+
+    session_cookie = request.cookies.get('session')
+
+    if session_cookie in session_map:
+        return redirect('/platform')
+
     if request.method == "GET":
         index_html = open("./register.html", "r", encoding="utf-8")
         return index_html.read()
