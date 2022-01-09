@@ -66,6 +66,9 @@
 			box-shadow: 0 5px #666;
 			transform: translateY(4px);
 		}
+		#background {
+			height: 100vh;
+		}
 		@keyframes fadein {
 			0% {
 				left: 0%;
@@ -83,9 +86,10 @@
 		
 	</style>
 	<body>
-		<div style="margin: 0; padding-top: 0px; position: absolute;">
+		<div id="background" style="margin: 0; padding-top: 0px; position: absolute;">
+			<img src="./static/index.png" width="100%" height="auto">
 			<a id="index" href="./"> CalendarBox </a>
-			<div class="middle_text" style="width: 100%; height: auto; background-size: cover; background-image: url('/static/index.png');">
+			<div class="middle_text" style="background-size: cover; ">
 				<p id="title">CalendarBox</p>
 				<p style="font-size: 16pt;">一款輕巧好用的個人行事曆</p>
 				<p style="font-size: 16pt;">來自國立臺北科技大學</p>
