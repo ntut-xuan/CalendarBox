@@ -14,7 +14,7 @@ from firebase_admin import exceptions
 from io import BytesIO
 from flask import *
 
-cred = credentials.Certificate("ntut-web-c0525-firebase-adminsdk-25ufm-dc13761630.json")
+cred = credentials.Certificate("ntut-web-c0525-firebase-adminsdk-25ufm-948f706dae.json")
 firebase_app = firebase_admin.initialize_app(cred)
 
 session_map = {}
