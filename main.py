@@ -138,6 +138,11 @@ def logout():
     del session_map[session_cookie]
     return redirect("/")
 
+@app.route("/teapot", methods=["GET"])
+def teapot():
+    index_html = open("./teapot.html", "r", encoding="utf-8")
+    return Response(index_html.read(), 418)
+
 if __name__ == "__main__":
     app.debug = True
     app.run(host="0.0.0.0", port=80)
