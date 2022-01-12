@@ -9,6 +9,8 @@
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
 	<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+
     <style>
         * {
 			overflow-y: hidden;
@@ -32,6 +34,9 @@
             border-width: 1px;
             border-color: gray;
             animation: fadein 3s;
+        }
+        #recaptcha > div {
+            margin: 0 auto .5em;
         }
         
         @keyframes fadein {
@@ -101,57 +106,71 @@
     </script>
     <script>
         function login(){
-            var email = document.getElementById("email").value;
-            var password = document.getElementById("password").value;
             Swal.fire({
-                title: "登入中",
-                showConfirmButton: false,
-                timer: 1500,
-                timerProgressBar: true,
+                title: 'Recaptcha',
+                html: '<div id="recaptcha"></div>',
                 didOpen: () => {
-                    Swal.showLoading();
-                    app.auth().signInWithEmailAndPassword(email, password).then((userCredential) => {
-                        var user = userCredential.user;
-                        Swal.fire({
-                            icon: 'success',
-                            title: "登入成功",
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then((result) => {
-                            /* doing login */
-                            user.getIdToken().then(tokenID => {
-                                jsonData = {}
-                                jsonData["email"] = email;
-                                jsonData["token"] = tokenID;
-                                requestURL = "./signin"
-                                $.ajax({
-                                    url: requestURL,
-                                    data: JSON.stringify(jsonData),
-                                    type: "POST",
-                                    dataType: "json",
-                                    contentType: "application/json;charset=utf-8",
-                                    success: function(data, status, xhr){
-                                        firebase.auth().signOut();
-                                        window.location.href = "./platform"
-                                    },
-                                    error: function(xhr, ajaxOptions, thrownError){
-                                        console.log(xhr.status);
-                                        console.log(thrownError);
-                                    }
+                    grecaptcha.render('recaptcha', {
+                        'sitekey': '6LdpaAoeAAAAAAIg2hd4sKhG8gfYQssr1cax7TgH'
+                    });
+                },
+                preConfirm: () => {
+                    if (grecaptcha.getResponse().length === 0) {
+                        Swal.showValidationMessage('請驗證你是不是機器人，逼波')
+                        return;
+                    }
+                    var email = document.getElementById("email").value;
+                    var password = document.getElementById("password").value;
+                    Swal.fire({
+                        title: "登入中",
+                        showConfirmButton: false,
+                        timer: 1500,
+                        timerProgressBar: true,
+                        didOpen: () => {
+                            Swal.showLoading();
+                            app.auth().signInWithEmailAndPassword(email, password).then((userCredential) => {
+                                var user = userCredential.user;
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: "登入成功",
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                }).then((result) => {
+                                    /* doing login */
+                                    user.getIdToken().then(tokenID => {
+                                        jsonData = {}
+                                        jsonData["email"] = email;
+                                        jsonData["token"] = tokenID;
+                                        requestURL = "./signin"
+                                        $.ajax({
+                                            url: requestURL,
+                                            data: JSON.stringify(jsonData),
+                                            type: "POST",
+                                            dataType: "json",
+                                            contentType: "application/json;charset=utf-8",
+                                            success: function(data, status, xhr){
+                                                window.location.replace("./platform");
+                                                firebase.auth().signOut();
+                                            },
+                                            error: function(xhr, ajaxOptions, thrownError){
+                                                console.log(xhr.status);
+                                                console.log(thrownError);
+                                            }
+                                        });
+                                    });
+                                    /* that's all */
                                 });
-                            })
-                            /* that's all */
-                        });
-                    })
-                    .catch((error) => {
-                        var errorCode = error.code;
-                        var errorMessage = error.message;
-                        Swal.fire({
-                            icon: 'error',
-                            title: "登入失敗，帳號或密碼錯誤",
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
+                            }).catch((error) => {
+                                var errorCode = error.code;
+                                var errorMessage = error.message;
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: "登入失敗，帳號或密碼錯誤",
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                            });
+                        }
                     });
                 }
             });

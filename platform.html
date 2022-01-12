@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@duetds/date-picker@1.4.0/dist/duet/duet.esm.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/@duetds/date-picker@1.4.0/dist/duet/duet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/css-toggle-switch@latest/dist/toggle-switch.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@duetds/date-picker@1.4.0/dist/duet/themes/default.css" />
@@ -24,17 +25,20 @@
             font-family: "Open 24 Display St";
             src: url("/static/Open\ 24\ Display\ St.ttf");
         }
-        #sidebar {
-            position: absolute;
+        #sidebar-area {
+            position: fixed;
             background-color: aquamarine;
             margin: 0;
-            padding: 20px;
-            padding-top: 90px;
-            display: inline-block;
+            padding-top: 1%;
+            display: block;
             top: 0%;
             left: 0%;
             width: 15%;
             height: 100%;
+        }
+        #sidebar {
+            padding: 20px;
+            padding-right: 20px;
         }
         #topbar {
             position: absolute;
@@ -48,12 +52,13 @@
             margin-top: 40px;
             padding-top: 5px;
             padding-left: 15px;
+            padding-right: 15px;
             padding-bottom: 5px;
             width: 100%;
             border-radius: 10px;
             font-family: "Ubuntu Mono";
             font-weight: bold;
-            font-size: 16pt;
+            font-size: 1.17vw;
             text-align: left;
             list-style: none;
             cursor: pointer;
@@ -103,7 +108,7 @@
             position: absolute; 
             left: 20%; 
             top: 10%; 
-            width: 700px; 
+            width: 35%; 
             background-color: mediumorchid; 
             color: white; 
             border-radius: 10px;
@@ -114,8 +119,7 @@
             position: absolute; 
             right: 10%; 
             top: 10%; 
-            width: 30%; 
-            height: 500px; 
+            width: 30%;
             background-color: wheat; 
             border-radius: 10px;
             box-shadow:2px 2px 2px 1px #cccccc;
@@ -166,17 +170,16 @@
             box-shadow:2px 2px 2px 1px #cccccc;
             padding: 50px;
         }
-        #schedule-img {
+        #schedule-detail {
             position: absolute; 
             left: 60%; 
             top: 10%; 
             width: 35%;
-            height: 60%;
             color: black; 
+            background-color: whitesmoke;
             border-radius: 10px;
             padding: 50px;
             text-align: center;
-            animation: fadin 3s;
             box-shadow:2px 2px 2px 1px #cccccc;
         }
         #schedule-img img {
@@ -185,6 +188,15 @@
             border-radius: 10px;
             animation: fadin 3s 0.5s;
             box-shadow:2px 2px 2px 1px #cccccc;
+        }
+        blockquote {
+            color: gray;
+            font-style: italic;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        .down-slidein {
+            animation: down-slidein 1s;
         }
         @keyframes fadeout {
             from {
@@ -204,7 +216,7 @@
         }
         @keyframes down-slidein {
             from {
-                top: 0;
+                top: -100%;
                 opacity: 0;
             }
             to {
@@ -225,7 +237,7 @@
     </style>
     <body>
         <div id="sidebar-area">
-            <a id="index" href="./" style="z-index: 1;"> CalendarBox </a>
+            <a id="index" href="./" style="position: relative; z-index: 1; padding-left: 20px;"> CalendarBox </a>
             <div id="sidebar">
                 <li class="sidebar-li active" id="li_index">
                     <i class="fas fa-address-card" style="width: 24px; height: 24px;"></i>
@@ -244,7 +256,7 @@
                     <a style="color: inherit;"> 登出 </a>
                 </li>
             </div>
-            <div id="user">
+            <div id="user" style="position: relative; margin-top: 150%; margin-left: 0; margin-right: 0; padding-left: 5%; width: 100%;">
                 <i class="fas fa-running"></i>
                 <a id="user_email"> </a>
             </div>
@@ -277,28 +289,37 @@
                     <i class="fas fa-arrow-circle-left fa-2x"></i>
                 </button>
             </div>
-            <div id="task_area" style="padding: 50px;">
+            <div id="task_area" style="padding: 50px; overflow-y: scroll;">
                 <h2> 事項 </h2>
                 <div id="task_group" class="list-group" style="padding-top: 20px;">
                 </div>
             </div>
         </div>
+
         <div id="sub-area" style="visibility: hidden;">
-            <div id="schedule-title">
-                <h2> 01/08 行程資訊 </h2>
+            <div id="schedule-title-div">
+                <h2 id="schedule-title"> </h2>
             </div>
-            <div id="schedule-img">
-                <img src="https://images.pexels.com/photos/3680219/pexels-photo-3680219.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500">
+            <div id="schedule-detail" style="visibility: hidden;">
+                <div style="z-index: 100; text-align: left;">
+                    <h2 id="detail_title" > </h2>
+                    <h4 id="detail_time"> </h4>
+                    <br />
+                    <img id="detail_photo" style="width: 50%; height: auto; display: block; margin-left: auto; margin-right: auto;">
+                    <br />
+                    <div style="border-style: solid; border-width:0.5px; border-radius:  10px; padding: 20px;">
+                        <a id="detail_text" style="text-justify: auto; text-align: justify; overflow-y: visible; height: auto; resize: none; overflow-y: hidden; background-color:#FFF !important;" onkeyup="autogrow(this);" onkeydown="autogrow(this)" readonly></a>
+                    </div>
+                    <br />
+                        <button class="btn btn-danger" type="button" id="detail_button" style="width: 100%;"> 刪除這個事項 </button>
+                </div>
             </div>
             <div id="schedule-info">
-                <div class="list-group">
-                    <a class="list-group-item list-group-item-action active"> 吃飯 </a>
-                    <a class="list-group-item list-group-item-action"> 看電影</a>
-                    <a class="list-group-item list-group-item-action"> 吃點心</a>
-                    <a class="list-group-item list-group-item-action disabled"> 玩 </a>
-                  </div>
+                <div id="schedule-info-div" class="list-group">
+                </div>
             </div>
         </div>
+
         <div id="add-new-task" style="visibility: hidden; font-size: 18px;">
             <div id="new-task-area">
                 <div id="main_area" style="float: left; width: 50%; height: 100%;">
@@ -347,433 +368,5 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
     <script src="/static/main.js"></script>
-
-    <script>
-        function sidebar_clear(){
-            var li = ["li_index", "li_addSchedule", "li_setting", "li_logout"]
-            for(var i = 0; i < li.length; i++){
-                var item = document.getElementById(li[i]);
-                item.setAttribute("class", "sidebar-li inactive")
-            }
-        }
-        function area_clear(){
-            var li = ["main-area", "sub-area", "add-new-task"]
-            for(var i = 0; i < li.length; i++){
-                var item = document.getElementById(li[i]);
-                document.getElementById(li[i]).style.setProperty("visibility", "hidden");
-            }
-        }
-        function animation_reset(){
-            var div = ["calendar_area", "task_area", "new-task-area"]
-            for(var i = 0; i < div.length; i++){
-                var item = document.getElementById(div[i]);
-                document.getElementById(div[i]).style.setProperty("animation", "none");
-            }
-        }
-        function fetchSchedule(){
-
-            var user_name = document.getElementById("user_email").innerText;
-
-            var firebase_fetch = db.collection("schedule").doc(user_name);
-
-            var task_group = document.getElementById("task_ul_group");
-
-            firebase_fetch.get().then((doc) => {
-
-                var jsonData = doc.data();
-                var keyList = Object.keys(jsonData);
-                console.log(jsonData);
-
-                var item_div = document.getElementById("task_group");
-
-                for(var i = 0; i < keyList.length; i++){
-
-                    var data = jsonData[keyList[i]];
-                    
-                    var item = document.createElement("a");
-                    item.setAttribute("class", "list-group-item list-group-item-action task_content_div");
-                    item.style.setProperty("cursor", "pointer");
-                    item.style.setProperty("margin-top", "10px");
-
-                    var content_div = document.createElement("div");
-                    content_div.setAttribute("class", "d-flex w-100 justify-content-between");
-
-                    var title = document.createElement("h5");
-                    title.setAttribute("class", "mb-1");
-                    title.innerText = data["title"];
-
-                    var small = document.createElement("small");
-                    small.innerText = data["start_time"];
-                    
-                    var p = document.createElement("p");
-                    p.setAttribute("class", "mb-1");
-                    p.innerText = data["detail"].split("<br>")[0].replace("<sp>", " ") + (data["detail"].split("<br>").length > 2 ? "..." : "");
-                    
-                    var outer_small = document.createElement("small");
-                    outer_small.innerText = data["start_time"] + " - " + data["end_time"];
-
-                    content_div.append(title);
-                    content_div.append(small);
-
-                    item.append(content_div);
-                    item.append(p);
-                    item.append(outer_small);
-
-                    item_div.append(item);
-
-                }
-            });
-        }
-    </script>
-    <script>
-
-        var current_calendar_year;
-        var current_calendar_month;
-
-        $.ajax({
-            url: "./platform",
-            type: "POST",
-            dataType: "json",
-            contentType: "application/json;charset=utf-8",
-            success: function(data, status, xhr){
-                console.log(data);
-                Swal.fire({
-                    icon: "info",
-                    text: "載入中...",
-                    customClass: {
-                        container: "position-absolute"
-                    },
-                    timer: 1500,
-                    timerProgressBar: true,
-                    didOpen: (() => {
-                        Swal.showLoading();
-                        var a = document.getElementById("user_email");
-                        a.innerText = data["name"];
-                        init();
-                        fetchSchedule();
-                    })
-                })
-            }
-        });
-
-        function init(){
-
-            var date = new Date();
-            current_calendar_year = date.getFullYear();
-            current_calendar_month = date.getMonth() + 1;
-
-            var table = document.getElementById("calendar");
-            for(var i = 0; i < 6; i++){
-                var tr = document.createElement("tr");
-                for(var j = 0; j < 7; j++){
-                    var td = document.createElement("td");
-
-                    td.setAttribute("id", i.toString() + "-" + j.toString());
-                    td.setAttribute("class", "calendar_area_enable");
-                    td.style.setProperty("position", "relative");
-                    td.style.setProperty("font-family", "Noto Sans");
-                    td.style.setProperty("padding", "1%");
-
-                    var span = document.createElement("span");
-                    span.setAttribute("id", "calendar-date-" + i.toString() + "-" + j.toString())
-                    span.style.setProperty("position", "absolute");
-                    span.style.setProperty("top", "5%");
-                    span.style.setProperty("left", "5%");
-
-                    var count = document.createElement("span");
-                    count.setAttribute("id", "calendar-count-" + i.toString() + "-" + j.toString())
-                    count.style.setProperty("position", "absolute");
-                    count.style.setProperty("left", "50%");
-                    count.style.setProperty("buttom", "0%");
-                    count.style.setProperty("font-size", "24pt");
-                    count.style.setProperty("font-weight", "bold");
-                    count.style.setProperty("white-space", "nowrap");
-                    count.style.setProperty("transform", "translate(-50% , 0%)");
-
-                    td.appendChild(span);
-                    td.appendChild(count);
-
-                    tr.appendChild(td);
-                }
-                table.appendChild(tr);
-            }
-
-            var index = document.getElementById("li_index");
-            index.addEventListener("click", function(){
-                animation_reset();
-                sidebar_clear();
-                area_clear();
-                index.setAttribute("class", "sidebar-li active");
-                document.getElementById("main-area").style.setProperty("visibility", "visible");
-                document.getElementById("calendar_area").style.setProperty("animation", "down-slidein 1.5s");
-                document.getElementById("task_area").style.setProperty("animation", "left-slidein 1.5s");
-                drawCalendarNumber()
-                drawCalendarTaskNumber();
-            });
-
-            var addtask = document.getElementById("li_addSchedule");
-            addtask.addEventListener("click", function(){
-                animation_reset();
-                sidebar_clear();
-                area_clear();
-                addtask.setAttribute("class", "sidebar-li active");
-                document.getElementById("add-new-task").style.setProperty("visibility", "visible");
-                document.getElementById("new-task-area").style.setProperty("animation", "down-slidein 1.5s");
-            });
-
-            var logout = document.getElementById("li_logout");
-            logout.addEventListener("click", logout_func);
-
-            var next_page = document.getElementById("next-page");
-            next_page.addEventListener("click", function(){
-                current_calendar_month += 1;
-                drawCalendarNumber();
-                drawCalendarTaskNumber();
-                drawCalendarTitle();
-                Swal.fire({
-                    text: "載入中...",
-                    target: "#calendar_area",
-                    timer: 1000,
-                    showConfirmButton: false,
-                    timerProgressBar: true,
-                    customClass: {
-                        container: "position-absolute"
-                    },
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                })
-            });
-
-            var prev_page = document.getElementById("prev-page");
-            prev_page.addEventListener("click", function(){
-                current_calendar_month -= 1;
-                drawCalendarNumber();
-                drawCalendarTaskNumber();
-                drawCalendarTitle();
-                Swal.fire({
-                    text: "載入中...",
-                    timer: 1000,
-                    timerProgressBar: true,
-                    target: "#calendar_area",
-                    showConfirmButton: false,
-                    customClass: {
-                        container: "position-absolute"
-                    },
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                })
-            });
-
-            drawCalendarNumber()
-            drawCalendarTaskNumber();
-            drawCalendarTitle();
-        }
-
-        function logout_func(){
-            Swal.fire({
-                icon: 'success',
-                title: "已登出",
-                showConfirmButton: false,
-                timer: 1500
-            }).then((result) => {
-                window.location.href = "./logout";
-            });
-        }
-        
-        function upload_schedule(){
-
-            var title = document.getElementById("schedule_data_title");
-            var start_time = document.getElementById("schedule_data_start_time");
-            var end_time = document.getElementById("schedule_data_end_time");
-            var photo_url = document.getElementById("schedule_data_photo");
-            var deadline_option = document.getElementById("schedule_data_open_deadline");
-            var detail = document.getElementById("schedule_data_detail");
-
-            var user_schedule = {};
-            var user_name = document.getElementById("user_email").innerText;
-
-            var data = db.collection("schedule").doc(user_name);
-
-            if (title.value === "" || start_time.value === "" || end_time.value === ""){
-                Swal.fire({
-                    icon: "error",
-                    title: "必須要設定標題、開始時間與結束時間",
-                    showConfirmButton: true
-                });
-                return;
-            }
-
-            data.get().then((doc) => {
-                if(doc.exists){
-                    user_schedule = doc.data();
-                    console.log("Document data:", doc.data());
-                }else{
-                    console.log("No data");
-                }
-            }).catch((error) => {
-                console.log("Error getting document:", error);
-            }).then(() => {
-
-                console.log(user_schedule);
-
-
-                var detail_string = detail.value.replace(/(?: |\r|\n|\r\n)/g, function(m) {
-                    return m === " " ? "<sp>" : "<br>";
-                });
-
-                data_package = {}
-                data_package["title"] = title.value;
-                data_package["start_time"] = start_time.value;
-                data_package["end_time"] = end_time.value; 
-                data_package["photo_url"] = photo_url.value;
-                data_package["deadline_option"] = deadline_option.value;
-                data_package["detail"] = detail_string;
-                
-                random_hash = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-
-                user_schedule[random_hash] = data_package;
-
-                Swal.fire({
-                    title: "上傳中",
-                    showConfirmButton: false,
-                    timer: 1500,
-                    timerProgressBar: true,
-                    didOpen: () => {
-                        Swal.showLoading();
-                        db.collection("schedule").doc(document.getElementById("user_email").innerText).set(user_schedule)
-                        .then(() => {
-                            Swal.fire({
-                                icon: 'success',
-                                title: "上傳成功",
-                                showConfirmButton: false,
-                                timer: 1500
-                            }).then(() => {
-                                window.location.reload();
-                            })
-                        })
-                        .catch((error) => {
-                            console.error("Error writing document: ", error);
-                        });
-                    }
-                });
-            });
-        }
-
-        function drawCalendarTitle(){
-            var date = new Date(current_calendar_year, current_calendar_month-1, 1);
-            document.getElementById("calendar_time").innerText = date.getFullYear().toString() + "年 " + (date.getMonth()+1).toString() + "月"; 
-        }
-
-        function drawCalendarNumber(){
-            var day = new Date(current_calendar_year, current_calendar_month-1, 1);
-            var weekOfDay = day.getUTCDay();
-            var index = weekOfDay + 1;
-            var countday = 1;
-            var maxDay = new Date(current_calendar_year, current_calendar_month, 0).getDate();
-            for(var i = 0; i < 6; i++){
-                for(var j = 0; j < 7; j++){
-                    var id = parseInt(i).toString() + "-" + parseInt(j).toString();
-                    var span_id = "calendar-date-" + parseInt(i).toString() + "-" + parseInt(j).toString();
-                    document.getElementById(id).setAttribute("class", "calendar_area_enable");
-                    document.getElementById(span_id).innerText = "";
-                }
-            }
-            for(var i = index/7; countday <= maxDay; i++){
-                for(var j = index%7; countday <= maxDay; index++){
-
-                    var id = parseInt(index/7).toString() + "-" + parseInt(index%7).toString();
-                    var td = document.getElementById(id);
-
-                    console.log("calendar-count-" + id);
-
-                    var date_span = document.getElementById("calendar-date-" + id);
-                    var count_span = document.getElementById("calendar-count-" + id);
-
-                    date_span.innerText = countday;
-                    
-                    td.addEventListener("click", function(){
-                        area_clear();
-                        document.getElementById("sub-area").style.setProperty("visibility", "visible");
-                    });
-
-                    countday += 1;
-                }
-            }
-            for(var i = 0; i < 6; i++){
-                for(var j = 0; j < 7; j++){
-                    var span_id = "calendar-date-" + parseInt(i).toString() + "-" + parseInt(j).toString();
-                    if(document.getElementById(span_id).innerText === ""){
-                        var id = parseInt(i).toString() + "-" + parseInt(j).toString();
-                        var td = document.getElementById(id);
-                        td.setAttribute("class", "calendar_area_disable");
-                    }
-                }
-            }
-        }
-
-        function drawCalendarTaskNumber(){
-
-            var user_name = document.getElementById("user_email").innerText;
-            var value = db.collection("schedule").doc(user_name);
-            var schedule = {};
-
-            value.get().then((doc) => {
-                if(!doc.exists){
-                    return;
-                }
-                schedule = doc.data();
-            }).then(() => {
-
-                var keys = Object.keys(schedule);
-                for(var i = 0; i < 6; i++){
-                    for(var j = 0; j < 7; j++){
-                        var id = parseInt(i).toString() + "-" + parseInt(j).toString();
-                        var span_id = "calendar-count-" + id;
-                        document.getElementById(span_id).innerText = "";
-                    }
-                }
-
-                for(var i = 0; i < 6; i++){
-                    for(var j = 0; j < 7; j++){
-
-                        var date_id = "calendar-date-" + parseInt(i).toString() + "-" + parseInt(j).toString();
-                        var count_id = "calendar-count-" + parseInt(i).toString() + "-" + parseInt(j).toString();
-
-                        if(document.getElementById(date_id).innerText === ""){
-                            continue;
-                        }
-
-                        var day = parseInt(document.getElementById(date_id).innerText);
-
-                        console.log(day);
-
-                        var count = 0;
-                        var date = new Date(current_calendar_year, current_calendar_month-1, day, 8, 0, 0);
-
-                        for(var k = 0; k < keys.length; k++){
-                            var data = schedule[keys[k]];
-                            var start_time = new Date(data["start_time"]);
-                            var end_time = new Date(data["end_time"]);
-                            var current_unix = Math.floor(date / 1000);
-                            var start_time_unix = Math.floor(start_time / 1000);
-                            var end_time_unix = Math.floor(end_time / 1000);
-                            console.log(date.toISOString());
-                            console.log(start_time.toISOString());
-                            if(current_unix >= start_time_unix && current_unix <= end_time_unix){
-                                count += 1;
-                            }
-                        }
-
-                        if(count != 0){
-                            var count_span = document.getElementById(count_id);
-                            count_span.innerText = count.toString();
-                        }
-                    }
-                }
-            
-            });
-        }
-    </script>
+    <script src="/static/platform.js"></script>
 </html>

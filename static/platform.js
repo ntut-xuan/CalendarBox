@@ -1,0 +1,628 @@
+var schedule;
+var date_array = [];
+
+var current_calendar_year;
+var current_calendar_month;
+
+function sidebar_clear() {
+    var li = ["li_index", "li_addSchedule", "li_setting", "li_logout"]
+    for (var i = 0; i < li.length; i++) {
+        var item = document.getElementById(li[i]);
+        item.setAttribute("class", "sidebar-li inactive")
+    }
+}
+
+function area_clear() {
+    var li = ["schedule-detail", "main-area", "sub-area", "add-new-task"]
+    for (var i = 0; i < li.length; i++) {
+        var item = document.getElementById(li[i]);
+        document.getElementById(li[i]).style.setProperty("visibility", "hidden");
+    }
+}
+
+function animation_reset() {
+    var div = ["schedule-detail", "calendar_area", "task_area", "new-task-area"]
+    for (var i = 0; i < div.length; i++) {
+        var item = document.getElementById(div[i]);
+        document.getElementById(div[i]).style.setProperty("animation", "none");
+    }
+}
+
+function fetchSchedule() {
+
+    var user_name = document.getElementById("user_email").innerText;
+
+    var firebase_fetch = db.collection("schedule").doc(user_name);
+
+    var task_group = document.getElementById("task_ul_group");
+
+    firebase_fetch.get().then((doc) => {
+
+        schedule = doc.data();
+        var keyList = Object.keys(schedule);
+
+        var item_div = document.getElementById("task_group");
+
+        for (var i = 0; i < keyList.length; i++) {
+
+            var data = schedule[keyList[i]];
+
+            var item = document.createElement("a");
+            item.setAttribute("class", "list-group-item list-group-item-action task_content_div");
+            item.style.setProperty("cursor", "pointer");
+            item.style.setProperty("margin-top", "10px");
+
+            var content_div = document.createElement("div");
+            content_div.setAttribute("class", "d-flex w-100 justify-content-between");
+
+            var title = document.createElement("h5");
+            title.setAttribute("class", "mb-1");
+            title.innerText = data["title"];
+
+            var small = document.createElement("small");
+            small.innerText = data["start_time"];
+
+            var p = document.createElement("p");
+            p.setAttribute("class", "mb-1");
+            p.innerText = data["detail"].split("<br>")[0].replace("<sp>", " ") + (data["detail"].split("<br>").length > 2 ? "..." : "");
+
+            var outer_small = document.createElement("small");
+            outer_small.innerText = data["start_time"] + " - " + data["end_time"];
+
+            content_div.append(title);
+            content_div.append(small);
+
+            item.append(content_div);
+            item.append(p);
+            item.append(outer_small);
+
+            item_div.append(item);
+
+        }
+    });
+}
+
+$.ajax({
+    url: "./platform",
+    type: "POST",
+    dataType: "json",
+    contentType: "application/json;charset=utf-8",
+    success: function (data, status, xhr) {
+        Swal.fire({
+            icon: "info",
+            text: "載入中...",
+            customClass: {
+                container: "position-absolute"
+            },
+            timer: 1500,
+            timerProgressBar: true,
+            didOpen: (() => {
+                Swal.showLoading();
+                var a = document.getElementById("user_email");
+                a.innerText = data["name"];
+                init();
+                fetchSchedule();
+            })
+        })
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+        console.log(xhr.status);
+        console.log(thrownError);
+        window.location.reload();
+    }
+});
+
+function init() {
+
+    var date = new Date();
+    current_calendar_year = date.getFullYear();
+    current_calendar_month = date.getMonth() + 1;
+
+    var table = document.getElementById("calendar");
+    for (var i = 0; i < 6; i++) {
+        date_array[i] = [];
+        var tr = document.createElement("tr");
+        for (var j = 0; j < 7; j++) {
+
+            date_array[i][j] = 0;
+
+            var td = document.createElement("td");
+
+            td.setAttribute("id", i.toString() + "-" + j.toString());
+            td.setAttribute("class", "calendar_area_enable");
+            td.style.setProperty("position", "relative");
+            td.style.setProperty("font-family", "Noto Sans");
+            td.style.setProperty("padding", "1%");
+
+            var span = document.createElement("span");
+            span.setAttribute("id", "calendar-date-" + i.toString() + "-" + j.toString())
+            span.style.setProperty("position", "absolute");
+            span.style.setProperty("top", "5%");
+            span.style.setProperty("left", "5%");
+
+            var count = document.createElement("span");
+            count.setAttribute("id", "calendar-count-" + i.toString() + "-" + j.toString())
+            count.style.setProperty("position", "absolute");
+            count.style.setProperty("left", "50%");
+            count.style.setProperty("buttom", "0%");
+            count.style.setProperty("font-size", "24pt");
+            count.style.setProperty("font-weight", "bold");
+            count.style.setProperty("white-space", "nowrap");
+            count.style.setProperty("transform", "translate(-50% , 0%)");
+
+            span.addEventListener("click", function (event) {
+                var id = event.target.getAttribute("id").split("-")[2] + "-" + event.target.getAttribute("id").split("-")[3];
+                console.log(id);
+                if (event.target.innerText.length == 0) {
+                    const toast = Swal.mixin({
+                        toast: true,
+                        timer: 1000,
+                        showConfirmButton: false,
+                    });
+                    toast.fire({
+                        icon: "info",
+                        title: "沒有 task！",
+                    });
+                } else {
+                    updateSubDiv(id);
+                    area_clear();
+                    document.getElementById("sub-area").style.setProperty("visibility", "visible");
+                }
+            });
+
+            count.addEventListener("click", function (event) {
+                var id = event.target.getAttribute("id").split("-")[2] + "-" + event.target.getAttribute("id").split("-")[3];
+                console.log(id);
+                if (event.target.innerText.length == 0) {
+                    const toast = Swal.mixin({
+                        toast: true,
+                        timer: 1000,
+                        showConfirmButton: false,
+                    });
+                    toast.fire({
+                        icon: "info",
+                        title: "沒有 task！",
+                    });
+                } else {
+                    updateSubDiv(id);
+                    area_clear();
+                    document.getElementById("sub-area").style.setProperty("visibility", "visible");
+                }
+            });
+
+            td.addEventListener("click", function (event) {
+                var id = event.target.getAttribute("id");
+                console.log(id);
+                console.log(document.getElementById("calendar-count-" + id).innerText.length);
+                if (document.getElementById("calendar-count-" + id).innerText.length == 0) {
+                    const toast = Swal.mixin({
+                        toast: true,
+                        timer: 1000,
+                        showConfirmButton: false,
+                    });
+                    toast.fire({
+                        icon: "info",
+                        title: "沒有 task！",
+                    });
+                } else {
+                    updateSubDiv(id);
+                    area_clear();
+                    document.getElementById("sub-area").style.setProperty("visibility", "visible");
+                }
+            });
+
+            td.appendChild(span);
+            td.appendChild(count);
+
+            tr.appendChild(td);
+        }
+        table.appendChild(tr);
+    }
+
+    var index = document.getElementById("li_index");
+    index.addEventListener("click", function () {
+        window.location.reload();
+    });
+
+    var addtask = document.getElementById("li_addSchedule");
+    addtask.addEventListener("click", function () {
+        animation_reset();
+        sidebar_clear();
+        area_clear();
+        addtask.setAttribute("class", "sidebar-li active");
+        document.getElementById("add-new-task").style.setProperty("visibility", "visible");
+        document.getElementById("new-task-area").style.setProperty("animation", "down-slidein 1.5s");
+    });
+
+    var logout = document.getElementById("li_logout");
+    logout.addEventListener("click", logout_func);
+
+    var next_page = document.getElementById("next-page");
+    next_page.addEventListener("click", function () {
+        current_calendar_month += 1;
+        drawCalendarNumber();
+        drawCalendarTaskNumber();
+        drawCalendarTitle();
+        Swal.fire({
+            text: "載入中...",
+            target: "#calendar_area",
+            timer: 1500,
+            showConfirmButton: false,
+            timerProgressBar: true,
+            customClass: {
+                container: "position-absolute"
+            },
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        })
+    });
+
+    var prev_page = document.getElementById("prev-page");
+    prev_page.addEventListener("click", function () {
+        current_calendar_month -= 1;
+        drawCalendarNumber();
+        drawCalendarTaskNumber();
+        drawCalendarTitle();
+        Swal.fire({
+            text: "載入中...",
+            timer: 1500,
+            timerProgressBar: true,
+            target: "#calendar_area",
+            showConfirmButton: false,
+            customClass: {
+                container: "position-absolute"
+            },
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        })
+    });
+
+    var schedule_detail_delete_button = document.getElementById("detail_button");
+    schedule_detail_delete_button.addEventListener("click", function (event) {
+        let delete_id = event.target.getAttribute("value").toString();
+        Swal.fire({
+            title: "確定要刪除這筆嗎",
+            confirmButtonText: '刪除',
+            showDenyButton: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: "刪除中",
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        Swal.showLoading();
+                        let user_name = document.getElementById("user_email").innerText;
+                        let user_schedule = db.collection("schedule").doc(user_name);
+                        console.log(user_name);
+                        console.log(delete_id);
+                        let remove = user_schedule.update({
+                            [delete_id]: firebase.firestore.FieldValue.delete()
+                        }).then(() => {
+                            Swal.fire({
+                                icon: "success",
+                                title: "刪除成功",
+                                timer: 1500
+                            }).then(() => {
+                                window.location.href = "./platform";
+                            });
+                        })
+                    }
+                })
+            }
+        })
+    });
+
+    drawCalendarNumber()
+    drawCalendarTaskNumber();
+    drawCalendarTitle();
+}
+
+function logout_func() {
+    Swal.fire({
+        icon: 'success',
+        title: "已登出",
+        showConfirmButton: false,
+        timer: 1500
+    }).then((result) => {
+        window.location.href = "./logout";
+    });
+}
+
+function upload_schedule() {
+
+    var title = document.getElementById("schedule_data_title");
+    var start_time = document.getElementById("schedule_data_start_time");
+    var end_time = document.getElementById("schedule_data_end_time");
+    var photo_url = document.getElementById("schedule_data_photo");
+    var deadline_option = document.getElementById("schedule_data_open_deadline");
+    var detail = document.getElementById("schedule_data_detail");
+
+    var user_schedule = {};
+    var user_name = document.getElementById("user_email").innerText;
+
+    var data = db.collection("schedule").doc(user_name);
+
+    if (title.value === "" || start_time.value === "" || end_time.value === "") {
+        Swal.fire({
+            icon: "error",
+            title: "必須要設定標題、開始時間與結束時間",
+            showConfirmButton: true
+        });
+        return;
+    }
+
+    data.get().then((doc) => {
+        if (doc.exists) {
+            user_schedule = doc.data();
+        } else {
+        }
+    }).catch((error) => {
+        console.log("Error getting document:", error);
+    }).then(() => {
+
+        console.log(user_schedule);
+
+
+        var detail_string = detail.value.replace(/(?: |\r|\n|\r\n)/g, function (m) {
+            return m === " " ? "<sp>" : "<br>";
+        });
+
+        data_package = {}
+        data_package["title"] = title.value;
+        data_package["start_time"] = start_time.value;
+        data_package["end_time"] = end_time.value;
+        data_package["photo_url"] = photo_url.value;
+        data_package["deadline_option"] = deadline_option.value;
+        data_package["detail"] = detail_string;
+
+        random_hash = data_package["start_time"] + "_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+        user_schedule[random_hash] = data_package;
+
+        Swal.fire({
+            title: "上傳中",
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading();
+                db.collection("schedule").doc(document.getElementById("user_email").innerText).set(user_schedule)
+                    .then(() => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: "上傳成功",
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.reload();
+                        })
+                    })
+                    .catch((error) => {
+                        console.error("Error writing document: ", error);
+                    });
+            }
+        });
+    });
+}
+
+function drawCalendarTitle() {
+    var date = new Date(current_calendar_year, current_calendar_month - 1, 1);
+    document.getElementById("calendar_time").innerText = date.getFullYear().toString() + "年 " + (date.getMonth() + 1).toString() + "月";
+}
+
+function drawCalendarNumber() {
+    var day = new Date(current_calendar_year, current_calendar_month - 1, 1);
+
+    var weekOfDay = day.getUTCDay();
+    var index = weekOfDay + 1;
+    var countday = 1;
+    var maxDay = new Date(current_calendar_year, current_calendar_month, 0).getDate();
+
+    for (var i = 0; i < 6; i++) {
+        for (var j = 0; j < 7; j++) {
+            var id = parseInt(i).toString() + "-" + parseInt(j).toString();
+            var span_id = "calendar-date-" + parseInt(i).toString() + "-" + parseInt(j).toString();
+            document.getElementById(id).setAttribute("class", "calendar_area_enable");
+            document.getElementById(span_id).innerText = "";
+        }
+    }
+    for (var i = index / 7; countday <= maxDay; i++) {
+        for (var j = index % 7; countday <= maxDay; index++) {
+
+            var id = parseInt(index / 7).toString() + "-" + parseInt(index % 7).toString();
+            var td = document.getElementById(id);
+
+            date_array[parseInt(index / 7)][parseInt(index % 7)] = countday;
+
+            var date_span = document.getElementById("calendar-date-" + id);
+            var count_span = document.getElementById("calendar-count-" + id);
+
+            date_span.innerText = countday;
+
+            countday += 1;
+        }
+    }
+    for (var i = 0; i < 6; i++) {
+        for (var j = 0; j < 7; j++) {
+            var span_id = "calendar-date-" + parseInt(i).toString() + "-" + parseInt(j).toString();
+            if (document.getElementById(span_id).innerText === "") {
+                var id = parseInt(i).toString() + "-" + parseInt(j).toString();
+                var td = document.getElementById(id);
+                td.setAttribute("class", "calendar_area_disable");
+            }
+        }
+    }
+}
+
+function drawCalendarTaskNumber() {
+
+    var user_name = document.getElementById("user_email").innerText;
+    var value = db.collection("schedule").doc(user_name);
+    var schedule = {};
+
+    value.get().then((doc) => {
+        if (!doc.exists) {
+            return;
+        }
+        schedule = doc.data();
+    }).then(() => {
+
+        var keys = Object.keys(schedule);
+        for (var i = 0; i < 6; i++) {
+            for (var j = 0; j < 7; j++) {
+                var id = parseInt(i).toString() + "-" + parseInt(j).toString();
+                var span_id = "calendar-count-" + id;
+                document.getElementById(span_id).innerText = "";
+            }
+        }
+
+        for (var i = 0; i < 6; i++) {
+            for (var j = 0; j < 7; j++) {
+
+                var id = parseInt(i).toString() + "-" + parseInt(j).toString();;
+                var date_id = "calendar-date-" + parseInt(i).toString() + "-" + parseInt(j).toString();
+                var count_id = "calendar-count-" + parseInt(i).toString() + "-" + parseInt(j).toString();
+
+                if (document.getElementById(date_id).innerText === "") {
+                    continue;
+                }
+
+                var day = parseInt(document.getElementById(date_id).innerText);
+
+                var count = 0;
+                var date = new Date(current_calendar_year, current_calendar_month - 1, day, 8, 0, 0);
+
+                for (var k = 0; k < keys.length; k++) {
+                    var data = schedule[keys[k]];
+                    var start_time = new Date(data["start_time"]);
+                    var end_time = new Date(data["end_time"]);
+                    var current_unix = Math.floor(date / 1000);
+                    var start_time_unix = Math.floor(start_time / 1000);
+                    var end_time_unix = Math.floor(end_time / 1000);
+                    if (current_unix >= start_time_unix && current_unix <= end_time_unix) {
+                        count += 1;
+                    }
+                }
+
+                document.getElementById(id).setAttribute("value", count);
+
+                if (count != 0) {
+                    var count_span = document.getElementById(count_id);
+                    count_span.innerText = count.toString();
+                }
+            }
+        }
+
+    });
+}
+
+function updateSubDiv(id) {
+    let day = date_array[parseInt(id.split("-")[0])][parseInt(id.split("-")[1])];
+
+    let title_date = new Date(current_calendar_year, current_calendar_month - 1, day, 8, 0, 0, 0);
+
+    /* Build submain div */
+    let keys = Object.keys(schedule);
+
+    document.getElementById("schedule-title").innerText = title_date.toISOString().split("T")[0] + " " + "行程資訊";
+
+    let item_div = document.getElementById("schedule-info");
+
+    while (item_div.lastElementChild) {
+        item_div.removeChild(item_div.lastElementChild);
+    }
+
+    for (let i = 0; i < keys.length; i++) {
+        let data = schedule[keys[i]];
+        let start_time = new Date(data["start_time"]);
+        let end_time = new Date(data["end_time"]);
+        let start_time_unix = Math.floor(start_time / 1000);
+        let end_time_unix = Math.floor(end_time / 1000);
+        let current_time_unix = Math.floor(title_date / 1000);
+
+        if (current_time_unix >= start_time_unix && current_time_unix <= end_time_unix) {
+            /* data in time-range */
+
+            var item = document.createElement("a");
+            item.setAttribute("class", "list-group-item list-group-item-action task_content_div");
+            item.setAttribute("value", keys[i]);
+            item.style.setProperty("cursor", "pointer");
+            item.style.setProperty("margin-top", "10px");
+
+            var content_div = document.createElement("div");
+            content_div.setAttribute("class", "d-flex w-100 justify-content-between");
+            content_div.setAttribute("value", keys[i]);
+
+            var title = document.createElement("h5");
+            title.setAttribute("class", "mb-1");
+            title.innerText = data["title"];
+            title.setAttribute("value", keys[i]);
+
+            var small = document.createElement("small");
+            small.innerText = data["start_time"];
+            small.setAttribute("value", keys[i]);
+
+            var p = document.createElement("p");
+            p.setAttribute("class", "mb-1");
+            p.innerText = data["detail"].split("<br>")[0].replace("<sp>", " ") + (data["detail"].split("<br>").length > 2 ? "..." : "");
+            p.setAttribute("value", keys[i]);
+
+            var outer_small = document.createElement("small");
+            outer_small.innerText = data["start_time"] + " - " + data["end_time"];
+            outer_small.setAttribute("value", keys[i]);
+
+            content_div.append(title);
+            content_div.append(small);
+
+            item.append(content_div);
+            item.append(p);
+            item.append(outer_small);
+
+            item.addEventListener("click", function (event) {
+                event.preventDefault();
+                document.getElementById("schedule-detail").classList.remove("down-slidein");
+                document.getElementById("schedule-detail").style.setProperty("visibility", "visible");
+                place_detail(event.target.getAttribute("value"));
+                void item.offsetWidth;
+                document.getElementById("schedule-detail").classList.add("down-slidein");
+            }, false)
+
+            item_div.appendChild(item);
+        }
+    }
+}
+
+function autogrow(textarea) {
+
+    var adjustedHeight = textarea.clientHeight;
+
+    adjustedHeight = Math.max(textarea.scrollHeight, adjustedHeight);
+
+    if (adjustedHeight > textarea.clientHeight) {
+        textarea.style.height = adjustedHeight + 'px';
+    }
+
+}
+
+function place_detail(code) {
+
+    /* place data */
+    var data = schedule[code];
+    document.getElementById("detail_title").innerText = data["title"];
+    document.getElementById("detail_time").innerText = data["start_time"] + "　　->　　" + data["end_time"];
+    if (data["photo_url"].length != 0) {
+        document.getElementById("detail_photo").style.setProperty("display", "block");
+        document.getElementById("detail_photo").setAttribute("src", data["photo_url"]);
+    } else {
+        document.getElementById("detail_photo").style.setProperty("display", "none");
+    }
+    document.getElementById("detail_text").innerHTML = marked.parse(data["detail"].replaceAll("<br>", "\n").replaceAll("<sp>", " "));
+
+    var button = document.getElementById("detail_button");
+    button.setAttribute("value", code);
+    button.innerText = "刪除這個事項";
+}

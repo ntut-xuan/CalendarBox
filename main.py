@@ -106,6 +106,7 @@ def signin():
     id_token = request.json["token"]
     expires_in = datetime.timedelta(days=5)
     try:
+
         session_cookie = auth.create_session_cookie(id_token, expires_in=expires_in)
 
         userInfo = auth.get_user_by_email(email)
@@ -145,4 +146,4 @@ def teapot():
 
 if __name__ == "__main__":
     app.debug = True
-    app.run(host="0.0.0.0", port=80)
+    app.run(host="localhost", port=80)
