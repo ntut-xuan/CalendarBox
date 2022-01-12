@@ -4,7 +4,8 @@
 }
 
 #index{
-    position: relative;
+    position: absolute;
+    z-index: 100;
     width: 100%;
     top: 1%;
     left: 1%;
