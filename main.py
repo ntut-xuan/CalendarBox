@@ -10,6 +10,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from firebase_admin import auth
 from firebase_admin import exceptions
+from firebase_admin import db;
 
 from io import BytesIO
 from flask import *
@@ -21,6 +22,19 @@ session_map = {}
 
 app = Flask(__name__)
 
+def fetchData(session_key):
+    email = session_map[session_key]["email"]
+    data = {}
+
+    database = firestore.client()
+    doc = database.collection(u"user").document(email).get()
+    doc_dict = doc.to_dict()
+
+    data["email"] = email
+    data["role"] = doc_dict["role"]
+    data["username"] = doc_dict["username"]
+
+    return data
 
 @app.route("/static/<path:path>")
 def returnStaticFile(path):
@@ -74,7 +88,7 @@ def getPlatform():
 
     try:
         decoded_claims = auth.verify_session_cookie(session_cookie, check_revoked=True)
-        return json.dumps(session_map[session_cookie])
+        return json.dumps(fetchData(session_cookie))
     
     except auth.InvalidSessionCookieError:
         # Session cookie is invalid, expired or revoked. Force user to login.
@@ -111,7 +125,11 @@ def signin():
 
         userInfo = auth.get_user_by_email(email)
         
-        data = {"email": userInfo.email, "name": userInfo.display_name}
+        database = firestore.client()
+        doc = database.collection(u"user").document(email).get()
+        doc_dict = doc.to_dict()
+
+        data = {"email": email, "role": doc_dict["role"], "username": doc_dict["username"]}
 
         session_map[session_cookie] = data
 

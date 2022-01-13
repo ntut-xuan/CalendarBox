@@ -1,4 +1,7 @@
 var schedule;
+var user_name;
+var user_email;
+var user_role;
 var date_array = [];
 
 var current_calendar_year;
@@ -13,7 +16,7 @@ function sidebar_clear() {
 }
 
 function area_clear() {
-    var li = ["schedule-detail", "main-area", "sub-area", "add-new-task"]
+    var li = ["setting-area", "schedule-detail", "main-area", "sub-area", "add-new-task"]
     for (var i = 0; i < li.length; i++) {
         var item = document.getElementById(li[i]);
         document.getElementById(li[i]).style.setProperty("visibility", "hidden");
@@ -21,7 +24,7 @@ function area_clear() {
 }
 
 function animation_reset() {
-    var div = ["schedule-detail", "calendar_area", "task_area", "new-task-area"]
+    var div = ["setting-area", "schedule-detail", "calendar_area", "task_area", "new-task-area"]
     for (var i = 0; i < div.length; i++) {
         var item = document.getElementById(div[i]);
         document.getElementById(div[i]).style.setProperty("animation", "none");
@@ -30,9 +33,9 @@ function animation_reset() {
 
 function fetchSchedule() {
 
-    var user_name = document.getElementById("user_email").innerText;
+    var user_name = document.getElementById("user_name").innerText;
 
-    var firebase_fetch = db.collection("schedule").doc(user_name);
+    var firebase_fetch = db.collection("schedule").doc(user_email);
 
     var task_group = document.getElementById("task_ul_group");
 
@@ -64,7 +67,7 @@ function fetchSchedule() {
 
             var p = document.createElement("p");
             p.setAttribute("class", "mb-1");
-            p.innerText = data["detail"].split("<br>")[0].replace("<sp>", " ") + (data["detail"].split("<br>").length > 2 ? "..." : "");
+            p.innerText = data["detail"].split("<br>")[0].replace("<sp>", " ").replaceAll("<sp>", " ") + (data["detail"].split("<br>").length > 2 ? "..." : "");
 
             var outer_small = document.createElement("small");
             outer_small.innerText = data["start_time"] + " - " + data["end_time"];
@@ -98,8 +101,10 @@ $.ajax({
             timerProgressBar: true,
             didOpen: (() => {
                 Swal.showLoading();
-                var a = document.getElementById("user_email");
-                a.innerText = data["name"];
+                var a = document.getElementById("user_name").innerText = data["username"];
+                user_role = data["role"];
+                user_name = data["username"];
+                user_email = data["email"];
                 init();
                 fetchSchedule();
             })
@@ -234,6 +239,16 @@ function init() {
         document.getElementById("new-task-area").style.setProperty("animation", "down-slidein 1.5s");
     });
 
+    var setting = document.getElementById("li_setting");
+    setting.addEventListener("click", function() {
+       animation_reset();
+       sidebar_clear();
+       area_clear();
+       setting.setAttribute("class", "sidebar-li active");
+       document.getElementById("setting-area").style.setProperty("visibility", "visible");
+       document.getElementById("setting-area").style.setProperty("animation", "down-slidein 1s");
+    })
+
     var logout = document.getElementById("li_logout");
     logout.addEventListener("click", logout_func);
 
@@ -295,9 +310,7 @@ function init() {
                     timerProgressBar: true,
                     didOpen: () => {
                         Swal.showLoading();
-                        let user_name = document.getElementById("user_email").innerText;
-                        let user_schedule = db.collection("schedule").doc(user_name);
-                        console.log(user_name);
+                        let user_schedule = db.collection("schedule").doc(user_email);
                         console.log(delete_id);
                         let remove = user_schedule.update({
                             [delete_id]: firebase.firestore.FieldValue.delete()
@@ -315,6 +328,92 @@ function init() {
             }
         })
     });
+
+    var modify_name_name = document.getElementById("btn_modify_name").addEventListener("click", async function(event){
+        const step = ['1', '2'];
+        const swalQueueStep = Swal.mixin({
+            confirmButtonText: "OK",
+            cancelButtonText: "回復上一動",
+            progressSteps: step,
+            input: 'text',
+            inputAttributes : {
+                required: true
+            },
+            reverseButtons: true,
+            validationMessage: "請完成這個動作"
+        });
+        const values = ["", "", ""]
+        const step_done = [false, false, false]
+        let currentStep
+        for(currentStep = 0; currentStep < 3;) {
+            let result
+            if(currentStep == 0){
+                result = await swalQueueStep.fire({
+                    title: "請輸入要更改的名稱",
+                    inputValue: values[0],
+                    currentProgressStep: currentStep,
+                    showCancelButton: currentStep > 0,
+                    preConfirm: async function(value) {
+                        await db.collection("schedule").doc(value).get().then((doc) => {
+                            if(doc.exists){
+                                Swal.showValidationMessage("這個名稱已經被取走了 QQ");
+                            }else{
+                                step_done[0] = true;
+                            }
+                        });
+                    }
+                })
+            }else if(currentStep == 1){
+                result = await swalQueueStep.fire({
+                    title: "嗨，" + values[0] + "，請輸入這隻帳號的密碼",
+                    currentProgressStep: currentStep,
+                    showCancelButton: currentStep > 0,
+                    input: 'password',
+                    preConfirm: async function(value) {
+                        await app.auth().signInWithEmailAndPassword(user_email, value).then(async() => {
+                            await db.collection("user").doc(user_email).update({
+                                username: values[0]
+                            }).then(() => {
+                                step_done[1] = true;
+                            }).catch((error) => {
+                                var errorCode = error.code;
+                                var errorMessage = error.message;
+                                console.log(errorMessage);
+                                Swal.showValidationMessage("Uh, oh. 發生了一點問題。");
+                            })
+                        }).catch((error) => {
+                            var errorCode = error.code;
+                            var errorMessage = error.message;
+                            console.log(errorMessage);
+                            Swal.showValidationMessage("密碼錯誤");
+                        })
+                    }
+                });
+            }else if(currentStep == 2){
+                result = Swal.fire({
+                    icon: "success",
+                    title: "完成!",
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    step_done[2] = true;
+                    location.reload();
+                });
+            }
+            if (step_done[currentStep] == true) {
+                if(currentStep == 0){
+                    values[currentStep] = result.value
+                }
+                console.log("trigger")
+                currentStep++
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                step_done[currentStep] = false
+                currentStep--
+            } else {
+                break;
+            }
+        }
+    })
 
     drawCalendarNumber()
     drawCalendarTaskNumber();
@@ -342,9 +441,9 @@ function upload_schedule() {
     var detail = document.getElementById("schedule_data_detail");
 
     var user_schedule = {};
-    var user_name = document.getElementById("user_email").innerText;
+    var user_name = document.getElementById("user_name").innerText;
 
-    var data = db.collection("schedule").doc(user_name);
+    var data = db.collection("schedule").doc(user_email);
 
     if (title.value === "" || start_time.value === "" || end_time.value === "") {
         Swal.fire({
@@ -390,7 +489,7 @@ function upload_schedule() {
             timerProgressBar: true,
             didOpen: () => {
                 Swal.showLoading();
-                db.collection("schedule").doc(document.getElementById("user_email").innerText).set(user_schedule)
+                db.collection("schedule").doc(user_email).set(user_schedule)
                     .then(() => {
                         Swal.fire({
                             icon: 'success',
@@ -460,8 +559,7 @@ function drawCalendarNumber() {
 
 function drawCalendarTaskNumber() {
 
-    var user_name = document.getElementById("user_email").innerText;
-    var value = db.collection("schedule").doc(user_name);
+    var value = db.collection("schedule").doc(user_email);
     var schedule = {};
 
     value.get().then((doc) => {

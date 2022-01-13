@@ -19,6 +19,7 @@
 	<link rel="stylesheet" href="/static/index.css">
     <link rel="stylesheet" href="/static/new-task.css">
     <link rel="stylesheet" href="/static/switch.css">
+    <link rel="stylesheet" href="/static/setting.css">
     
     <style>
         @font-face {
@@ -92,7 +93,7 @@
             background-color: rgb(255, 255, 255, 0.7);
             border: solid;
             border-width: 15px;
-            border-color: mediumorchid;
+            border-color: transparent;
             cursor: pointer;
         }
         .calendar_area_disable {
@@ -101,7 +102,7 @@
             background-color: rgb(255, 255, 255, 0.3);
             border: solid;
             border-width: 15px;
-            border-color: mediumorchid;
+            border-color: transparent;
             cursor: default;
         }
         #calendar_area {
@@ -112,7 +113,6 @@
             background-color: mediumorchid; 
             color: white; 
             border-radius: 10px;
-            box-shadow:2px 2px 2px 1px #cccccc;
             animation: down-slidein 1.5s;
         }
         #task_area {
@@ -122,7 +122,6 @@
             width: 30%;
             background-color: wheat; 
             border-radius: 10px;
-            box-shadow:2px 2px 2px 1px #cccccc;
             animation: left-slidein 1.5s;
         }
         #user {
@@ -167,7 +166,6 @@
             width: 35%;
             border-radius: 10px;
             background-color: rgb(192, 248, 192);
-            box-shadow:2px 2px 2px 1px #cccccc;
             padding: 50px;
         }
         #schedule-detail {
@@ -180,14 +178,12 @@
             border-radius: 10px;
             padding: 50px;
             text-align: center;
-            box-shadow:2px 2px 2px 1px #cccccc;
         }
         #schedule-img img {
             width: auto;
             height: 100%;
             border-radius: 10px;
             animation: fadin 3s 0.5s;
-            box-shadow:2px 2px 2px 1px #cccccc;
         }
         blockquote {
             color: gray;
@@ -236,12 +232,12 @@
         }
     </style>
     <body>
-        <div id="sidebar-area">
+        <div id="sidebar-area" style="z-index: 1; background-color: (0, 0, 0, 1);">
             <a id="index" href="./" style="position: relative; z-index: 1; padding-left: 20px;"> CalendarBox </a>
             <div id="sidebar">
                 <li class="sidebar-li active" id="li_index">
                     <i class="fas fa-address-card" style="width: 24px; height: 24px;"></i>
-                    <a> 待做事項 - 主頁 </a>
+                    <a> 主頁 </a>
                 </li>
                 <li class="sidebar-li inactive" id="li_addSchedule">
                     <i class="fas fa-pen" style="width: 24px; height: 24px;" ></i>
@@ -258,7 +254,7 @@
             </div>
             <div id="user" style="position: relative; margin-top: 150%; margin-left: 0; margin-right: 0; padding-left: 5%; width: 100%;">
                 <i class="fas fa-running"></i>
-                <a id="user_email"> </a>
+                <a id="user_name"> </a>
             </div>
         </div>
         <div id="main-area" style="visibility: visible;">
@@ -356,7 +352,23 @@
                     <label style="margin-top: 50px;"> 行程詳細 </label>
                     <textarea class="form-control" id="schedule_data_detail" rows="16"></textarea>
                     <button style="margin-top: 50px;" class="btn btn-primary btn-lg btn-block" onclick="upload_schedule()"> 完成 </button>
-                    <button style="margin-top: 10px;" class="btn btn-secondary btn-lg btn-block"> 預覽 markdown </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="setting-area">
+            <div id="setting-containter">
+                <h2> 設定 </h2>
+                <div class="setting-dashboard" id="personal-data" style="margin: 3%; background-color: white;"> 
+                    <div id="personal-data-left" style="float: left; margin: 3%; width: 44%; padding: 3%;">
+                        <button class="btn btn-primary" id="btn_modify_name" style="width: 100%"> 更改使用者名稱 </button>
+                        <button class="btn btn-primary" id="btn_change_background_image" style="width: 100%;"> 更改背景圖片 </button>
+                        <button class="btn btn-primary" id="btn_teapot" style="width: 100%" onclick="window.location.href='./teapot'"> 418 I'm a teapot </button>
+                    </div>
+                    <div id="personal-data-right" style="float: right; width: 44%; margin: 3%; padding: 3%;">
+                        <button class="btn btn-danger" id="btn_modify_name" style="width: 100%"> 更改密碼 </button>
+                        <button class="btn btn-danger" id="btn_modify_name" style="width: 100%"> 刪除帳號 </button>
+                    </div>
                 </div>
             </div>
         </div>

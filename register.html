@@ -112,79 +112,111 @@
     </script>
     <script>
         function register(){
+            var username = document.getElementById("username").value;
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
             Swal.fire({
                 title: 'Recaptcha',
-                html: '<div class="text-xs-center" id="recaptcha"> </div>',
+                //html: '<div class="text-xs-center" id="recaptcha"> </div>',
                 didOpen: () => {
-                    grecaptcha.render('recaptcha', {
+                    /*grecaptcha.render('recaptcha', {
                         'sitekey': '6LdpaAoeAAAAAAIg2hd4sKhG8gfYQssr1cax7TgH'
-                    });
+                    });*/
                 },
-                preConfirm: () => {
-                    if (grecaptcha.getResponse().length === 0) {
-                        Swal.showValidationMessage('請驗證你是不是機器人，逼波');
-                        return;
-                    }
-                    var email = document.getElementById("email").value;
-                    var password = document.getElementById("password").value;
-                    var username = document.getElementById("username").value;
-                    Swal.fire({
-                        title: "註冊中",
+                preConfirm: async function() {
+                    await Swal.fire({
                         showConfirmButton: false,
                         timer: 1500,
                         timerProgressBar: true,
-                        didOpen: () => {
+                        title: "正在確認使用者名稱...",
+                        didOpen: async() => {
                             Swal.showLoading();
-                            app.auth().createUserWithEmailAndPassword(email, password).then((userCredential) => {
-                                var user = userCredential.user;
-                                console.log("success");
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: "註冊成功！",
-                                    timer: 1500,
-                                    showConfirmButton: false
-                                }).then((result) => {
-                                    user.updateProfile({
-                                        displayName: username
-                                    }).then(() => {
-                                        /* doing login */
-                                        user.getIdToken().then(tokenID => {
-                                            jsonData = {}
-                                            jsonData["email"] = email;
-                                            jsonData["token"] = tokenID;
-                                            requestURL = "./signin"
-                                            $.ajax({
-                                                url: requestURL,
-                                                data: JSON.stringify(jsonData),
-                                                type: "POST",
-                                                dataType: "json",
-                                                contentType: "application/json;charset=utf-8",
-                                                success: function(data, status, xhr){
-                                                    firebase.auth().signOut();
-                                                    window.location.href = "./platform"
-                                                },
-                                                error: function(xhr, ajaxOptions, thrownError){
-                                                    console.log(xhr.status);
-                                                    console.log(thrownError);
-                                                }
-                                            });
-                                        })
-                                    })
-                                    /* that's all */
-                                });
-                            }).catch((error) => {
-                                var errorCode = error.code;
-                                var errorMessage = error.message;
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: "註冊失敗",
-                                    text: error.message
-                                });
-                            });
+                            let valid = await checkUserNameAvailable(username);
+                            if(valid == true){
+                                Swal.fire("使用者名稱已有人使用", "", "error");
+                            }
                         }
                     });
+                    await Swal.fire({
+                        showConfirmButton: false,
+                        timer: 1500,
+                        timerProgressBar: true,
+                        title: "註冊中...",
+                        didOpen: async() => {
+                            Swal.showLoading();
+                            let result = await processRegister(email, password);
+                            console.log(result);
+                            if(result["status"] == "failed"){
+                                Swal.fire("註冊失敗", result["error-message"], "error");
+                                return;
+                            }
+                            await initUserInfo(username, email);
+                            await dopost(email, result["user"]);
+                        }
+                    });
+                    await Swal.fire({
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1500,
+                        title: "註冊成功",
+                        didClose: () => {
+                            window.location.href = "./platform";
+                        }
+                    })
                 }
             });
         }
-    </script>
+        async function dopost(email, user){
+            await user.getIdToken().then(tokenID => {
+                jsonData = {}
+                jsonData["email"] = email;
+                jsonData["token"] = tokenID;
+                requestURL = "./signin"
+                $.ajax({
+                    url: requestURL,
+                    data: JSON.stringify(jsonData),
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json;charset=utf-8",
+                    success: function(data, status, xhr){
+                        firebase.auth().signOut();
+                    },
+                    error: function(xhr, ajaxOptions, thrownError){
+                        console.log(xhr.status);
+                        console.log(thrownError);
+                    }
+                });
+            })
+            console.log("posted");
+        }
+        async function initUserInfo(username, email){
+            await db.collection("user").doc(email).set({
+                username: username,
+                role: "user"
+            });
+        }
+
+        async function checkUserNameAvailable(username){
+            let valid = false;
+            await db.collection("user").doc(username).get().then((doc) => {
+                valid = doc.exists;
+            })
+            return valid;
+        }
+        async function processRegister(email, password){
+            let result = {}
+            await app.auth().createUserWithEmailAndPassword(email, password).then((userCredential) => {
+                var user = userCredential.user;
+                result["status"] = "ok";
+                result["user"] = user;
+            }).catch((error) => {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                result["status"] = "failed";
+                result["error-code"] = error.code;
+                result["error-message"] = error.message; 
+            });
+            return result;
+        }
+        </script>
 </html>
