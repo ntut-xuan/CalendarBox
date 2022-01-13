@@ -121,11 +121,11 @@
             var password = document.getElementById("password").value;
             Swal.fire({
                 title: 'Recaptcha',
-                //html: '<div class="text-xs-center" id="recaptcha"> </div>',
+                html: '<div class="text-xs-center" id="recaptcha"> </div>',
                 didOpen: () => {
-                    /*grecaptcha.render('recaptcha', {
+                    grecaptcha.render('recaptcha', {
                         'sitekey': '6LdpaAoeAAAAAAIg2hd4sKhG8gfYQssr1cax7TgH'
-                    });*/
+                    });
                 },
                 preConfirm: async function() {
                     await Swal.fire({
