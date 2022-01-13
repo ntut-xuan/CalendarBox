@@ -8,7 +8,7 @@ var current_calendar_year;
 var current_calendar_month;
 
 function sidebar_clear() {
-    var li = ["li_index", "li_addSchedule", "li_setting", "li_logout"]
+    var li = ["li_index", "li_addSchedule", "li_setting", "li_logout", "li_advanced_setting"]
     for (var i = 0; i < li.length; i++) {
         var item = document.getElementById(li[i]);
         item.setAttribute("class", "sidebar-li inactive")
@@ -328,6 +328,12 @@ function init() {
             }
         })
     });
+
+    var advanced_setting_bar = document.getElementById("li_advanced_setting");
+    advanced_setting_bar.style.setProperty("display", user_role == "root" ? "block" : "none");
+    advanced_setting_bar.addEventListener('click', function(event){
+        window.location.href = "./as";
+    })
 
     var modify_name_name = document.getElementById("btn_modify_name").addEventListener("click", async function(event){
         const step = ['1', '2'];

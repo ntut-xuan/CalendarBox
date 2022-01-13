@@ -1,0 +1,34 @@
+WARNING:werkzeug: * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+INFO:werkzeug: * Running on http://192.168.0.103:80/ (Press CTRL+C to quit)
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:06] "[32mGET /as HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:06] "GET /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:06] "[36mGET /static/index.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:06] "[36mGET /static/login.png HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:06] "[36mGET /static/main.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:06] "[36mGET /static/Open%2024%20Display%20St.ttf HTTP/1.1[0m" 304 -
+DEBUG:urllib3.util.retry:Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+DEBUG:google.auth.transport.requests:Making request: POST https://oauth2.googleapis.com/token
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): oauth2.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://oauth2.googleapis.com:443 "POST /token HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): identitytoolkit.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://identitytoolkit.googleapis.com:443 "POST /v1/projects/ntut-web-c0525:createSessionCookie HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:https://identitytoolkit.googleapis.com:443 "POST /v1/projects/ntut-web-c0525/accounts:lookup HTTP/1.1" 200 None
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:44] "POST /signin HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:44] "GET /platform HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:45] "[36mGET /static/index.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:45] "[36mGET /static/new-task.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:45] "[36mGET /static/switch.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:45] "[36mGET /static/setting.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:45] "[36mGET /static/main.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:45] "[36mGET /static/platform.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:45] "[36mGET /static/Open%2024%20Display%20St.ttf HTTP/1.1[0m" 304 -
+DEBUG:google.auth.transport.requests:Making request: GET https://www.googleapis.com/identitytoolkit/v3/relyingparty/publicKeys
+DEBUG:cachecontrol.controller:Looking up "https://www.googleapis.com/identitytoolkit/v3/relyingparty/publicKeys" in the cache
+DEBUG:cachecontrol.controller:No cache entry available
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://www.googleapis.com:443 "GET /identitytoolkit/v3/relyingparty/publicKeys HTTP/1.1" 200 3242
+DEBUG:cachecontrol.controller:Updating cache with response from "https://www.googleapis.com/identitytoolkit/v3/relyingparty/publicKeys"
+DEBUG:cachecontrol.controller:Caching b/c date exists and max-age > 0
+DEBUG:urllib3.connectionpool:https://identitytoolkit.googleapis.com:443 "POST /v1/projects/ntut-web-c0525/accounts:lookup HTTP/1.1" 200 None
+INFO:werkzeug:127.0.0.1 - - [13/Jan/2022 22:04:45] "POST /platform HTTP/1.1" 200 -

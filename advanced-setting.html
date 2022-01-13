@@ -1,0 +1,88 @@
+<html>
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title> 管理員介面 </title>
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script  src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+	<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script src="https://kit.fontawesome.com/7b0276e0ce.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@duetds/date-picker@1.4.0/dist/duet/duet.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@duetds/date-picker@1.4.0/dist/duet/duet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src='https://cdn.plot.ly/plotly-2.8.3.min.js'></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/css-toggle-switch@latest/dist/toggle-switch.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@duetds/date-picker@1.4.0/dist/duet/themes/default.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/index.css">
+    <link rel="stylesheet" href="/static/new-task.css">
+    <link rel="stylesheet" href="/static/switch.css">
+    <link rel="stylesheet" href="/static/setting.css">
+
+    <style>
+        @font-face {
+			font-family: "Noto Sans TC";
+			src: url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap');
+		}
+        .panel {
+            position: absolute; 
+            font-family: "Noto Sans TC";
+            border-radius: 10px;
+            padding: 0.5%; 
+        }
+        .panel button {
+            margin: 1%;
+        }
+        #setting-panel {
+            left: 5%; 
+            top: 5%;
+            width: 30%;
+            height: 60%;
+            border-radius: 10px; 
+            background-color: aquamarine;
+        }
+        #system-panel {
+            right: 5%; 
+            top: 5%;
+            width: 30%;
+            height: 90%;
+            border-radius: 10px; 
+            background-color: darkturquoise;
+        }
+    </style>
+
+    <body style="background-image: url('/static/index.png');">
+        <div class="panel" id="setting-panel" >
+            <div style="padding: 5%; background-color: white; height: 100%; border-radius: 10px;">
+                <h2> 設定 </h2>
+                <br />
+                <button id="list_user" class="btn btn-primary" style="width: 100%"> 列出使用者 </button>
+                <button id="delete_post" class="btn btn-warning" style="width: 100%;"> 刪除使用者貼文 </button>
+                <button id="add_user" class="btn btn-warning" style="width: 100%"> 新增使用者 </button>
+                <button id="remove_user" class="btn btn-warning" style="width: 100%"> 刪除使用者 </button>
+            </div>
+        </div>
+        <div class="panel" id="system-panel">
+            <div style="padding: 5%; background-color: white; height: 100%; border-radius: 10px;">
+                <h2> 狀態 </h2>
+                <br />
+                <h4> </h4>
+                <div id="user-plot"></div>
+            </div>
+        </div>
+    </body>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
+    <script src="/static/main.js"></script>
+    <script src='/static/advanced-platform.js'></script>
+
+</html>

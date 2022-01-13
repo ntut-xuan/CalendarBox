@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import sys
 import math
+from urllib import response
 import requests
 import json
 import firebase_admin
 import datetime
+import platform
 
 from firebase_admin import credentials
 from firebase_admin import firestore
@@ -51,6 +53,28 @@ def getIndex():
     index_html = open("./index.html", "r", encoding="utf-8")
     return index_html.read()
 
+@app.route("/removeUser", methods=["POST"])
+def removeUser():
+
+    session_cookie = request.cookies.get('session')
+    email = request.args.get('user')
+
+    if not session_cookie or session_cookie not in session_map:
+        return redirect('/login')
+
+    if fetchData(session_cookie)["role"] != "root":
+        return redirect('/nopermission')
+
+    try:
+        user = auth.get_user_by_email(email)    
+        auth.delete_user(user.uid)
+        
+        return Response("", status=200)
+    except Exception as e:
+        print(e)
+        return Response("", status=500)
+
+
 @app.route("/login")
 def getLogin():
 
@@ -93,6 +117,25 @@ def getPlatform():
     except auth.InvalidSessionCookieError:
         # Session cookie is invalid, expired or revoked. Force user to login.
         return redirect('/login')
+
+@app.route("/nopermission", methods=["GET"])
+def getNoPermissionPage():
+    index_html = open("./noPermission.html", "r", encoding="utf-8")
+    return Response(index_html.read(), 502)
+
+@app.route("/as", methods=["GET"])
+def getAdvancedSetting():
+    
+    session_cookie = request.cookies.get('session')
+
+    if not session_cookie or session_cookie not in session_map:
+        return redirect('/login')
+    
+    if request.method == "GET" and fetchData(session_cookie)["role"] == "root":
+        index_html = open("./advanced-setting.html", "r", encoding="utf-8")
+        return index_html.read()
+    else:
+        return redirect('/nopermission')
 
 @app.route("/platform/addSchedule", methods=["GET", "POST"])
 def getPlatformAddSchedule():
