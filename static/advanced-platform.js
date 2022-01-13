@@ -287,3 +287,90 @@ document.getElementById("list_user").addEventListener("click", async function(ev
         html: table
     });
 });
+
+document.getElementById("edit_user").addEventListener("click", async function(event){
+    const step = ['1', '2', '3'];
+    const swalQueueStep = Swal.mixin({
+        confirmButtonText: "OK",
+        cancelButtonText: "回復上一動",
+        progressSteps: step,
+        input: 'text',
+        inputAttributes : {
+            required: true
+        },
+        reverseButtons: true,
+        validationMessage: "請完成這個動作"
+    });
+    const values = ["", "", ""]
+    const step_done = [false, false, false]
+    let currentStep
+    for(currentStep = 0; currentStep < 3;) {
+        let result
+        if(currentStep == 0){
+            result = await swalQueueStep.fire({
+                title: "請輸入信箱",
+                inputValue: values[0],
+                currentProgressStep: currentStep,
+                showCancelButton: currentStep > 0,
+                preConfirm: async function(value) {
+                    await db.collection("user").doc(value).get().then((doc) => {
+                        if(!doc.exists){
+                            Swal.showValidationMessage("信箱不存在");
+                        }else{
+                            step_done[0] = true;
+                        }
+                    });
+                }
+            })
+        }else if(currentStep == 1){
+            result = await swalQueueStep.fire({
+                title: "請輸入這隻帳號要更改的使用者名稱",
+                inputValue: values[1],
+                currentProgressStep: currentStep,
+                showCancelButton: currentStep > 0,
+                preConfirm: async function(value) {
+                    await db.collection("user").get().then((querySnapshot) => {
+                        querySnapshot.forEach(documentSnapshot => {
+                            if(documentSnapshot.get("username") == value){
+                                Swal.showValidationMessage("用戶名稱已存在");
+                            }
+                        })
+                    });
+                    step_done[1] = true;
+                }   
+            });
+        }else if(currentStep == 2){
+            Swal.fire({
+                title: "更改中",
+                timer: 1500,
+                currentProgressStep: currentStep,
+                timerProgressBar: true,
+                didOpen: async function(value) {
+                    Swal.showLoading();
+                    await db.collection("user").doc(values[0]).update({
+                        username: values[1]
+                    }).then(() => {
+                        step_done[2] = true;
+                        Swal.fire("更改成功", "", "success")
+                    }).catch((error) => {
+                        var errorCode = error.code;
+                        var errorMessage = error.message;
+                        console.log(errorMessage);
+                        Swal.showValidationMessage("Uh, oh. 發生了一點問題。");
+                    })
+                }   
+            });
+        }
+        if (step_done[currentStep] == true) {
+            if(currentStep != 2){
+                values[currentStep] = result.value
+            }
+            currentStep++
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            step_done[currentStep] = false
+            currentStep--
+        } else {
+            break;
+        }
+    }
+});
